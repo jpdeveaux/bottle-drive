@@ -1,0 +1,15 @@
+# Node
+node_modules/
+npm-debug.log
+
+# Prisma 7 Generated Client
+backend/src/prisma
+
+# Environment Secrets (Crucial!)
+.env
+
+# Docker
+.docker/
+
+# Build outputs
+dist/
