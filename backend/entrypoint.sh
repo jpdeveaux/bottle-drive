@@ -26,9 +26,9 @@ if [ "$NODE_ENV" = "production" ]; then
   npx prisma migrate deploy
 else
   echo "Mode: DEVELOPMENT"
-  echo "Action: Running 'prisma db push'..."
+  echo "Action: Running 'prisma db push --accept-data-loss'..."
   # --accept-data-loss allows quick iteration while you are designing the schema
-  npx prisma migrate dev --name init
+  npx prisma db push --accept-data-loss
   echo "DB Pushed successfully."
 fi
 
@@ -37,7 +37,11 @@ fi
 echo "Action: Generating Prisma Client..."
 npx prisma generate
 
-# 4. START THE APPLICATION
+# 4. SEED DATABASE
+echo "Action: Seeding Address database..."
+npx prisma db seed
+
+# 5. START THE APPLICATION
 # 'exec "$@"' takes the CMD from the Dockerfile or Docker Compose 
 # and runs it as the main process (PID 1).
 echo "-------------------------------------------------------"

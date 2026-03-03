@@ -3,8 +3,8 @@
 # =========================
 FROM node:25-slim AS base
 
-RUN apt-get update && apt-get install -y openssl netcat-openbsd && rm -rf /var/lib/apt/lists/*
-
+RUN apt-get update && apt-get install -y tzdata openssl netcat-openbsd && rm -rf /var/lib/apt/lists/*
+ENV TZ=America/Halifax
 WORKDIR /app
 
 COPY package*.json ./
@@ -49,4 +49,4 @@ COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 
 RUN chmod +x /usr/local/bin/entrypoint.sh
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
-CMD ["node", "dist/src/index.js"]
+CMD ["node", "dist/index.js"]

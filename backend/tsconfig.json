@@ -3,7 +3,6 @@
     "target": "ES2022",
     "module": "NodeNext",                /* Required for modern Node.js */
     "moduleResolution": "NodeNext",
-    "rootDir": "./src",
     "outDir": "./dist",
     "esModuleInterop": true,            /* Required for the 'pg' library */
     "forceConsistentCasingInFileNames": true,
@@ -14,6 +13,9 @@
       "*": ["node_modules/*", "prisma/generated-client/*"] 
     }
   },
-  "include": ["**/*.ts"],
+  "include": [
+    "src/**/*", 
+    "src/prisma/generated"
+, "prisma/seed.ts"  ],
   "exclude": ["node_modules"]
 }

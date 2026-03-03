@@ -23,8 +23,8 @@ app.get("/api/health", async (_req, res) => {
 });
 
 app.get('/api/addresses', async (req, res) => {
-  const volunteers = await prisma.address.findMany();
-  res.json(volunteers);
+  const addresses = await prisma.address.findMany();
+  res.json(addresses);
 });
 
 app.post('/api/addresses', async (req, res) => {
