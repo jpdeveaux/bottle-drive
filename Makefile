@@ -14,6 +14,7 @@ help:
 	@echo "Available commands:"
 	@echo "  make dev        Start dev stack (hot reload, no build)"
 	@echo "  make dev-build  Rebuild dev image"
+	@echo "  make restart    Restart containers (dev stack)"
 	@echo "  make dev-down   Stop dev stack"
 	@echo "  make logs       Tail API logs"
 	@echo "  make prisma     Open Prisma CLI shell"
@@ -37,6 +38,10 @@ dev-build:
 .PHONY: dev-down
 dev-down:
 	docker compose -f $(DEV_COMPOSE) down
+
+.PHONY: restart
+restart:
+	docker compose -f $(DEV_COMPOSE) restart
 
 .PHONY: logs
 logs:
