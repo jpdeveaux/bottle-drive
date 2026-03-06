@@ -59,9 +59,14 @@ function App() {
 
    // Listen for real-time updates from the Controller
     socket.on('addressUpdated', (updatedAddress: Address) => {
-      setAddresses((current) => 
-        current.map(addr => addr.id === updatedAddress.id ? updatedAddress : addr)
-      );
+      setAddresses((current) => {
+          const exists = current.find(a => a.id === updatedAddress.id);
+          if (exists) {
+            return current.map(addr => addr.id === updatedAddress.id ? updatedAddress : addr);
+          }
+          // If it's a new submission from the public form, add it to the map!
+          return [...current, updatedAddress];
+        });
     });
         
     return () => { 

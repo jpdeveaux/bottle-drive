@@ -3,6 +3,7 @@ import { Server } from 'socket.io';
 import { prisma } from './db.js';
 import { createServer } from 'http';
 import cors from 'cors';
+import { geocodeAddress } from './geocoder.js';
 
 const corsOptions = {
   origin: process.env.FRONTEND_URL,
@@ -57,22 +58,35 @@ app.patch('/api/addresses/:id', async (req, res) => {
   }
 });
 
-app.post('/api/addresses/:id/status', async (req, res) => {
-  const { id } = req.params;
-  const { status } = req.body;
+// This is the endpoint for your "Public Form"
+app.post('/api/public/submit', async (req, res) => {
+  const { street, notes } = req.body;
+
+  // 1. Convert text address to Lat/Lng
+  const geo = await geocodeAddress(street);
+
+  if (!geo || !geo.lat || !geo.lng) {
+    return res.status(400).json({ error: "Could not find that location. Please be more specific." });
+  }
 
   try {
-    const updatedAddress = await prisma.address.update({
-      where: { id: id },
-      data: { status: status  },
+    // 2. Save to database
+    const newAddress = await prisma.address.create({
+      data: {
+        street: geo.formattedAddress || street,
+        lat: geo.lat,
+        lng: geo.lng,
+        notes: notes || "",
+        status: "unvisited"
+      }
     });
-    
-   // THE MVC TRIGGER: Tell all clients the data changed
-    io.emit('addressUpdated', updatedAddress);
 
-    res.json(updatedAddress);
-  } catch (error) {
-    res.status(500).json({ error: "Failed to update status" });
+    // 3. THE MVC MAGIC: Tell all volunteers a new pin just appeared!
+    io.emit('addressUpdated', newAddress);
+
+    res.json({ success: true, message: "Pickup requested!" });
+  } catch (err) {
+    res.status(500).json({ error: "Database error" });
   }
 });
 
