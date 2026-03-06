@@ -38,6 +38,7 @@ services:
       - /app/node_modules
     environment:
       - VITE_API_URL=${BACKEND_URL}
+      - ADDRESS_PLACEHOLDER=${ADDRESS_PLACEHOLDER}
     depends_on:
       - api
 
