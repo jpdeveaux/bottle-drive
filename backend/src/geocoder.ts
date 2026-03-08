@@ -9,6 +9,24 @@ const options: NodeGeocoder.Options & { userAgent?: string } = {
 
 const geocoder = NodeGeocoder(options);
 
+const stateMap: Record<string, string> = {
+  "Ontario": "ON",
+  "British Columbia": "BC",
+  "Alberta": "AB",
+  "Quebec": "QC", 
+  "Nova Scotia": "NS",
+  "New Brunswick": "NB",
+  "Manitoba": "MB",
+  "Saskatchewan": "SK",
+  "Newfoundland and Labrador": "NL",
+  "Prince Edward Island": "PE",
+};
+
+const getAbbreviation = (fullName: string | undefined) => {
+  if (!fullName) return "";
+  return stateMap[fullName] || fullName; // Fallback to full name if not found
+};
+
 const buildCleanAddress = (g: any) => {
   const parts = [];
   
@@ -21,7 +39,7 @@ const buildCleanAddress = (g: any) => {
   if (g.city) parts.push(g.city);
   
   // 3. Province/State
-  if (g.state) parts.push(g.state);
+  if (g.state) parts.push(getAbbreviation(g.state));
 
   // If we couldn't build a clean string, fallback to a sensible default
   return parts.length > 0 ? parts.join(', ') : g.formattedAddress;

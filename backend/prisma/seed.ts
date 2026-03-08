@@ -1,22 +1,23 @@
 import { prisma } from '../src/db.js';
 
 async function main() {
-  // Clear existing addresses to avoid duplicates on restart
-  await prisma.address.deleteMany({});
+  const adminEmail = process.env.INITIAL_ADMIN_EMAIL;
 
-  const sampleAddresses = [
-    { street: '123 Main Ave', lat: 44.6488, lng: -63.5752, status: 'unvisited' },
-    { street: '456 Oak St', lat: 44.6510, lng: -63.5820, status: 'unvisited' },
-    { street: '789 Pine Rd', lat: 44.6450, lng: -63.5700, status: 'completed' },
-  ];
-
-  for (const addr of sampleAddresses) {
-    await prisma.address.create({ data: addr });
+  if (adminEmail) {
+    await prisma.user.upsert({
+      where: { email: adminEmail },
+      update: {},
+      create: {
+        email: adminEmail,
+        name: "Initial Admin",
+        role: "admin",
+        googleId: "initial-provision", // Placeholder until they first login
+      },
+    });
+    console.log(`Admin user ${adminEmail} provisioned.`);
   }
-
-  console.log('Seed: Created 3 sample addresses.');
 }
 
 main()
-  .catch((e) => { console.error(e); process.exit(1) })
-  .finally(async () => { await prisma.$disconnect() })
+  .catch((e) => console.error(e))
+  .finally(async () => await prisma.$disconnect());

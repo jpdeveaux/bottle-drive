@@ -1,0 +1,5 @@
+All database IDs are Strings (UUID/CUID).
+Backend: Node.js, Express, Prisma, TypeScript.
+Frontend: React, Vite, Tailwind.
+Authentication: Google OAuth + JWT.
+Always check schema.prisma before suggesting database changes.

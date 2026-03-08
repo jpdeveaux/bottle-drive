@@ -17,10 +17,10 @@ services:
       target: dev
     ports:
       - "${BACKEND_PORT}:${BACKEND_PORT}"
+    env_file:
+      - ./.env
     environment:
-      - NODE_ENV=development
       - DATABASE_URL=postgresql://${DB_USER}:${DB_PASS}@db:5432/${DB_NAME}?schema=public
-      - FRONTEND_URL=${FRONTEND_URL}
     volumes:
       - ./backend:/app
       - ./shared:/shared # Map it here
@@ -36,9 +36,8 @@ services:
       - ./frontend:/app
       - ./shared:/shared # Map it here
       - /app/node_modules
-    environment:
-      - VITE_API_URL=${BACKEND_URL}
-      - ADDRESS_PLACEHOLDER=${ADDRESS_PLACEHOLDER}
+    env_file:
+      - ./.env
     depends_on:
       - api
 

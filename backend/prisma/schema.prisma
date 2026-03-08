@@ -16,10 +16,15 @@ datasource db {
 model User {
   id        String   @id @default(uuid())
   email     String   @unique
-  role      Role
+  name      String?
+  role      Role     @default(volunteer)
+  googleId  String?  @unique
   createdAt DateTime @default(now())
 
   zones     Zone[]   @relation("ZoneClaims")
+
+  // link to addresses for audit trail
+  updatedAddresses Address[]
 }
 
 model Zone {
@@ -47,6 +52,9 @@ model Address {
 
 //  zoneId    String
 //  zone      Zone     @relation(fields: [zoneId], references: [id])
+
+  updatedById String?
+  updater   User?    @relation(fields: [updatedById], references: [id])
 }
 
 enum Role {

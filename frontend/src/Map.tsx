@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import { RefreshButton } from './components/RefreshButton';
+import type { Address } from '@shared/types';
+import { io } from "socket.io-client";
 import 'leaflet/dist/leaflet.css';
 import * as L from 'leaflet';
-import { io } from "socket.io-client";
+import { authFetch } from './api';
 
 const blueIcon = new L.Icon({
   iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
@@ -19,9 +21,6 @@ const greenIcon = new L.Icon({
   iconAnchor: [12, 41],
 });
 
-// Use your shared types here!
-import type { Address } from '@shared/types';
-
 // Connect to the backend
 const BACKEND = import.meta.env.VITE_API_URL;
 const socket = io(BACKEND, { path: '/socket.io/' });
@@ -30,7 +29,7 @@ socket.on('connect', () => {
     console.log('Connected to socket server');
 });
 
-function App() {
+function Map() {
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [loading, setLoading] = useState(false); // New state to show busy status
 
@@ -43,7 +42,7 @@ function App() {
   const fetchAddresses = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${BACKEND}/api/addresses`);
+      const res = await authFetch(`${BACKEND}/api/addresses`);
       const data = await res.json();
       setAddresses(data);
       console.log("Fetched addresses:"+data);
@@ -80,7 +79,7 @@ function App() {
   // Socket.io handles the UI refresh
   const handleStatusChange = async (id: string, newStatus: string) => {
     try {
-      await fetch(`${BACKEND}/api/addresses/${id}`, {
+      await authFetch(`${BACKEND}/api/addresses/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus }),
@@ -92,7 +91,7 @@ function App() {
 
   const handleNoteChange = async (id: string, newNotes: string) => {
     try {
-      await fetch(`${BACKEND}/api/addresses/${id}`, {
+      await authFetch(`${BACKEND}/api/addresses/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ notes: newNotes }),
@@ -146,4 +145,4 @@ function App() {
   );
 }
 
-export default App;
+export default Map;
