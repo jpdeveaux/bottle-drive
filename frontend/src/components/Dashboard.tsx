@@ -6,11 +6,10 @@ export const Dashboard = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [bulkInput, setBulkInput] = useState('');
   const [message, setMessage] = useState('');
-  const BACKEND = import.meta.env.VITE_API_URL;
 
   // 1. Fetch users on mount
   const fetchUsers = async () => {
-    const res = await authFetch(`${BACKEND}/api/admin/users`);
+    const res = await authFetch('/admin/users');
     if (res.ok) setUsers(await res.json());
   };
 
@@ -19,7 +18,7 @@ export const Dashboard = () => {
   // 2. Handle Bulk Add (Comma or Space delimited)
   const handleBulkAdd = async () => {
     const emails = bulkInput.split(/[\s,]+/).filter(e => e.includes('@'));
-    const res = await authFetch(`${BACKEND}/api/admin/users/bulk-add`, {
+    const res = await authFetch('/admin/users/bulk-add', {
       method: 'POST',
       body: JSON.stringify({ emails })
     });
@@ -33,7 +32,7 @@ export const Dashboard = () => {
 
   // 3. Toggle Approval or Role
   const updateUser = async (id: string, updates: Partial<User>) => {
-    const res = await authFetch(`${BACKEND}/api/admin/users/${id}`, {
+    const res = await authFetch(`/admin/users/${id}`, {
       method: 'PATCH',
       body: JSON.stringify(updates)
     });

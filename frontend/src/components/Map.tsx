@@ -22,8 +22,7 @@ const greenIcon = new L.Icon({
 });
 
 // Connect to the backend
-const BACKEND = import.meta.env.VITE_API_URL;
-const socket = io(BACKEND, { path: '/socket.io/' });
+const socket = io(import.meta.env.VITE_API_URL, { path: '/socket.io/' });
 
 socket.on('connect', () => {
     console.log('Connected to socket server');
@@ -42,7 +41,7 @@ function Map() {
   const fetchAddresses = async () => {
     setLoading(true);
     try {
-      const res = await authFetch(`${BACKEND}/api/addresses`);
+      const res = await authFetch('/addresses');
       const data = await res.json();
       setAddresses(data);
       console.log("Fetched addresses:"+data);
@@ -79,7 +78,7 @@ function Map() {
   // Socket.io handles the UI refresh
   const handleStatusChange = async (id: string, newStatus: string) => {
     try {
-      await authFetch(`${BACKEND}/api/addresses/${id}`, {
+      await authFetch(`/addresses/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus }),
@@ -91,7 +90,7 @@ function Map() {
 
   const handleNoteChange = async (id: string, newNotes: string) => {
     try {
-      await authFetch(`${BACKEND}/api/addresses/${id}`, {
+      await authFetch(`/addresses/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ notes: newNotes }),

@@ -1,4 +1,10 @@
-export const authFetch = async (url: string, options: RequestInit = {}) => {
+const BACKEND = import.meta.env.VITE_API_URL;
+
+/**
+ * A wrapper for fetch that includes the base URL, authentication headers, and error handling.
+ * @param url - API Path starting with / (e.g. '/addresses')
+ */
+export const authFetch = async (url: `/${string}`, options: RequestInit = {}) => {
   const token = localStorage.getItem('token');
   
   const headers = {
@@ -7,11 +13,12 @@ export const authFetch = async (url: string, options: RequestInit = {}) => {
     ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
   };
 
-  const response = await fetch(url, { ...options, headers });
-  
+  const response = await fetch(`${BACKEND}/api${url}`, { ...options, headers });
+
+  // Auto-logout if the token expired
   if (response.status === 401) {
-    // Optional: Auto-logout if the token expired
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
     window.location.href = '/login';
   }
   else if (!response.ok) {
