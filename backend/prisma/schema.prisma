@@ -14,14 +14,15 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  name      String?
-  role      Role     @default(volunteer)
-  googleId  String?  @unique
-  createdAt DateTime @default(now())
+  id         String   @id @default(uuid())
+  email      String   @unique
+  name       String?
+  role       Role     @default(volunteer)
+  googleId   String?  @unique
+  isApproved Boolean  @default(false) 
+  createdAt  DateTime @default(now())
 
-  zones     Zone[]   @relation("ZoneClaims")
+  zones      Zone[]   @relation("ZoneClaims")
 
   // link to addresses for audit trail
   updatedAddresses Address[]

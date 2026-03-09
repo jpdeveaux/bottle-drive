@@ -1,16 +1,20 @@
 import { Request, Response, NextFunction } from 'express';
 import { OAuth2Client } from 'google-auth-library';
-import { User } from '../../shared/types.js';
+import { User } from '../../../shared/types.js';
 import jwt from 'jsonwebtoken';
 
 const client = new OAuth2Client(process.env.VITE_GOOGLE_CLIENT_ID);
 const JWT_SECRET = process.env.JWT_SECRET || 'super-secret-change-me';
 
+export interface IDParams {
+  id: string;
+}
+
 export const verifyGoogleToken = async (idToken: string) => {
   try {
     const ticket = await client.verifyIdToken({
       idToken,
-      audience: process.env.GOOGLE_CLIENT_ID,
+      audience: process.env.VITE_GOOGLE_CLIENT_ID,
     });
     return ticket.getPayload(); // Contains email, name, sub (Google ID)
   } catch (error) {
@@ -42,7 +46,7 @@ export const authenticateJWT = (req: AuthRequest, res: Response, next: NextFunct
       if (err) {
         return res.status(403).json({ error: "Session expired or invalid" });
       }
-      req.user = decoded; // Now req.user is available in your routes
+      req.user = decoded;
       next();
     });
   } else {

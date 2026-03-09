@@ -2,6 +2,7 @@ import { prisma } from '../src/db.js';
 
 async function main() {
   const adminEmail = process.env.INITIAL_ADMIN_EMAIL;
+  const adminName = process.env.INITIAL_ADMIN_NAME;
 
   if (adminEmail) {
     await prisma.user.upsert({
@@ -9,9 +10,10 @@ async function main() {
       update: {},
       create: {
         email: adminEmail,
-        name: "Initial Admin",
+        name: adminName,
         role: "admin",
-        googleId: "initial-provision", // Placeholder until they first login
+        googleId: null,
+        isApproved: true
       },
     });
     console.log(`Admin user ${adminEmail} provisioned.`);

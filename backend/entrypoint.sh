@@ -38,7 +38,7 @@ echo "Action: Generating Prisma Client..."
 npx prisma generate
 
 # 4. SEED DATABASE
-echo "Action: Seeding Address database..."
+echo "Action: Initializing database..."
 npx prisma db seed
 
 # 5. START THE APPLICATION

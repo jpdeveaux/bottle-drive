@@ -14,6 +14,10 @@ export const authFetch = async (url: string, options: RequestInit = {}) => {
     localStorage.removeItem('token');
     window.location.href = '/login';
   }
+  else if (!response.ok) {
+    const errorData = await response.json();
+    alert(`⚠️ Something went wrong!\n\nStatus: ${response.status}\nError: ${errorData.error || 'Unknown error'}`);
+  }
 
   return response;
 };

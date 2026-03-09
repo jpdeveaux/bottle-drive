@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import { RefreshButton } from './components/RefreshButton';
+import { RefreshButton } from './RefreshButton';
 import type { Address } from '@shared/types';
 import { io } from "socket.io-client";
 import 'leaflet/dist/leaflet.css';
 import * as L from 'leaflet';
-import { authFetch } from './api';
+import { authFetch } from '../api';
 
 const blueIcon = new L.Icon({
   iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
@@ -97,6 +97,7 @@ function Map() {
         body: JSON.stringify({ notes: newNotes }),
       });
     } catch (err) {
+      window.alert()
       console.error("Note update failed", err);
     }
   };

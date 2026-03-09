@@ -6,14 +6,14 @@ export const PublicRequest = () => {
   const [notes, setNotes] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const BACKEND = import.meta.env.VITE_API_URL;
-  const ADDRESS_PLACEHOLDER = import.meta.env.ADDRESS_PLACEHOLDER || '123 Main St, Halifax, NS';
+  const ADDRESS_PLACEHOLDER = import.meta.env.VITE_ADDRESS_PLACEHOLDER;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus('loading');
 
     try {
-      const res = await fetch(`${BACKEND}/api/public/submit`, {
+      const res = await fetch(`${BACKEND}/api/addresses/submit`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ street, notes }),
@@ -49,7 +49,7 @@ export const PublicRequest = () => {
           />
         </div>
         <div style={{ marginBottom: '15px' }}>
-          <label style={{ display: 'block' }}>Notes for Volunteer</label>
+          <label style={{ display: 'block' }}>Optional Notes for Volunteer</label>
           <textarea 
             placeholder="e.g., Bags are behind the gate"
             value={notes}
