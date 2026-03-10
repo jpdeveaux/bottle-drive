@@ -40,6 +40,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setAuthState({ token: null, user: null, loading: false });
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+
+    const currentPath = window.location.pathname;
+    window.location.href = `/login?redirectTo=${encodeURIComponent(currentPath)}`;
   };
 
   return (

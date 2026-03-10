@@ -17,14 +17,14 @@ router.use(authenticateJWT, (req: AuthRequest, res, next) => {
   next();
 });
 
-// GET /api/admin/users
-router.get('/users', async (req, res) => {
+// GET /api/users
+router.get('/', async (req, res) => {
   const users = await prisma.user.findMany({ orderBy: { createdAt: 'desc' } });
   res.json(users);
 });
 
-// GET /api/admin/users
-router.patch('/users/:id', async (req: AuthRequest & { params: UserParams }, res) => {
+// GET /api/users
+router.patch('/:id', async (req: AuthRequest & { params: UserParams }, res) => {
   const userId = req.params.id;
   const role = req.body.role;
   const isApproved = req.body.isApproved;
@@ -43,8 +43,8 @@ router.patch('/users/:id', async (req: AuthRequest & { params: UserParams }, res
   }
 });
 
-// POST /api/admin/users/bulk-add
-router.post('/users/bulk-add', async (req, res) => {
+// POST /api/users/bulk-add
+router.post('/bulk-add', async (req, res) => {
   const { emails } = req.body;
   const data = emails.map((email: string) => ({
     email,

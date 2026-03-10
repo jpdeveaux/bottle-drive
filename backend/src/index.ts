@@ -5,12 +5,12 @@ import { createServer } from 'http';
 import cors from 'cors';
 
 import addressRoutes from './routes/addresses.js';
-import adminRoutes from './routes/admin.js';
+import userRoutes from './routes/users.js';
 import authRoutes from './routes/auth.js';
 
 const corsOptions = {
   origin: process.env.FRONTEND_URL,
-  methods: ["GET", "POST", "PATCH"],
+  methods: ["GET", "POST", "PATCH", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"]
 };
 
@@ -25,16 +25,7 @@ const io = new Server(server, {
 app.use(express.json());
 
 app.use('/api/auth', authRoutes);
-app.use('/api/admin', adminRoutes);
+app.use('/api/users', userRoutes);
 app.use('/api/addresses', addressRoutes(io));
-
-app.get("/api/health", async (_req, res) => {
-  try {
-    const result = await prisma.$queryRaw<{ now: Date }[]>`SELECT NOW()`;
-    res.json({ status: "ok", dbTime: result[0].now });
-  } catch {
-    res.status(500).json({ error: "DB connection failed" });
-  }
-});
 
 server.listen(3001, '0.0.0.0', () => console.log("Server running on port 3001"));

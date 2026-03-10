@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import { RefreshButton } from './RefreshButton';
 import type { Address } from '@shared/types';
+import { AddressStatus } from '@shared/types';
 import { io } from "socket.io-client";
 import 'leaflet/dist/leaflet.css';
 import * as L from 'leaflet';
 import { authFetch } from '../api';
+import { useTitle } from '../hooks/useTitle';
 
 const blueIcon = new L.Icon({
   iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
@@ -52,6 +54,8 @@ function Map() {
     }
   };
 
+  useTitle(import.meta.env.VITE_TITLE);
+
   useEffect(() => {
     fetchAddresses();
 
@@ -78,7 +82,7 @@ function Map() {
   // Socket.io handles the UI refresh
   const handleStatusChange = async (id: string, newStatus: string) => {
     try {
-      await authFetch(`/addresses/${id}`, {
+      await authFetch(`/addresses/${id}/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus }),
@@ -90,7 +94,7 @@ function Map() {
 
   const handleNoteChange = async (id: string, newNotes: string) => {
     try {
-      await authFetch(`/addresses/${id}`, {
+      await authFetch(`/addresses/${id}/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ notes: newNotes }),
@@ -115,27 +119,48 @@ function Map() {
         {addresses.map((addr) => (
           <Marker key={addr.id} position={[addr.lat, addr.lng]} icon={getIcon(addr.status)}>
             <Popup>
-              <div style={{ minWidth: '150px' }}>
-                <strong>Address: {addr.street}</strong>
-                <div className="statusBox">
-                  <label>Status:</label>
+              <div className="min-w-[200px] p-1 font-sans text-gray-800">
+                <div className="mb-3">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500">Address</h3>
+                  <p className="text-sm font-semibold text-gray-900 leading-tight">
+                    {addr.street}
+                  </p>
+                </div>
+
+                <div className="mb-3">
+                  <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">
+                    Status
+                  </label>
                   <select 
                     value={addr.status} 
                     onChange={(e) => handleStatusChange(addr.id, e.target.value)}
+                    className="cap w-full bg-gray-50 border border-gray-200 rounded-md p-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                   >
-                    <option value="unvisited">Unvisited</option>
-                    <option value="completed">Completed</option>
+                    {Object.values(AddressStatus).map((status) => (
+                      <option value={status}>{status}</option>
+                    ))}
                   </select>
                 </div>
-                <label>Notes:</label>
-                <div
-                  className="editableNotes"
-                  contentEditable="plaintext-only"
-                  suppressContentEditableWarning={true}
-                  onBlur={(e) => handleNoteChange(addr.id, e.currentTarget.innerText || "")}
-                >
-                  {addr.notes}
-                </div>                
+
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">
+                    Volunteer Notes
+                  </label>
+                  <textarea
+                    className="w-full bg-blue-50 border border-blue-100 rounded-md p-2 text-sm text-blue-900 placeholder-blue-300 focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all resize-none h-20"
+                    onBlur={(e) => {
+                      if (e.target.value !== (addr.notes || '')) {
+                        handleNoteChange(addr.id, e.target.value);
+                      }
+                    }}
+                  >
+                    {addr.notes
+                  }</textarea>
+                </div>
+                
+                <div className="mt-2 text-[10px] text-gray-400 text-right italic">
+                  Saves automatically on blur
+                </div>
               </div>
             </Popup>
           </Marker>

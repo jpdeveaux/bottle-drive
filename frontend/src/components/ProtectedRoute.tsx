@@ -6,10 +6,18 @@ import { Navigate } from 'react-router-dom';
 export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { authState } = useAuth();
   
-  if (authState.loading) return <div>Loading...</div>;
+  if (authState.loading) {
+    return <div>Loading...</div>;
+  }
+
+  // Capture current path (e.g., /admin or /map)
+  const currentPath = window.location.pathname;
+  const target = `/login?redirectTo=${encodeURIComponent(currentPath)}`;
   
   // If no user, kick them to the login page
-  if (!authState.user) return <Navigate to="/login" replace />;
-  
+  if (!authState.user) {
+    return <Navigate to={target} replace />;
+  }
+
   return children;
 };
