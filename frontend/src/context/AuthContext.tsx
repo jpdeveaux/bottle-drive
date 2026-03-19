@@ -11,6 +11,8 @@ interface AuthContextType {
   authState: AuthState;
   login: (token: string, user: User) => void;
   logout: () => void;
+  clearState: () => void;
+  refreshUser: () => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);

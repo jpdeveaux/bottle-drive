@@ -2,7 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { PublicRequest } from './components/PublicRequest';
-import { Dashboard } from './components/Dashboard';
+import { Admin } from './components/Admin';
 import { Login } from './components/Login';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { AuthProvider } from './context/AuthProvider';
@@ -31,8 +31,8 @@ createRoot(document.getElementById('root')!).render(
             <Route 
               path="/admin" 
               element={
-                <ProtectedRoute>
-                  <Dashboard /> 
+                <ProtectedRoute adminOnly={true}>
+                  <Admin /> 
                 </ProtectedRoute>
               } 
             />

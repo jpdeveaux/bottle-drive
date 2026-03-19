@@ -9,6 +9,10 @@ export default defineConfig({
     alias: {
       // This maps the alias to the physical folder outside /frontend
       '@shared': path.resolve(__dirname, '../shared'),
+      '@auth': path.resolve(__dirname, './src/authFetch.ts'),
+      "@context": path.resolve(__dirname, "./src/context"),
+      "@hooks": path.resolve(__dirname, "./src/hooks"),
+      "@components": path.resolve(__dirname, "./src/components"),
     },
   },
   server: {

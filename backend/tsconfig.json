@@ -10,12 +10,15 @@
     "skipLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@shared/*": ["../shared/*"],
+      "@routes/*": ["src/routes/*"],
+      "@auth": ["src/middleware/auth.js"],
       "*": ["node_modules/*", "prisma/generated-client/*"] 
     }
   },
   "include": [
     "src/**/*", 
-    "src/prisma/generated"
-, "prisma/seed.ts"  ],
+    "src/prisma/generated", 
+    "prisma/seed.ts"  ],
   "exclude": ["node_modules"]
 }

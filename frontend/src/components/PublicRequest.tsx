@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useState } from 'react';
-import { useTitle } from '../hooks/useTitle';
+import { useTitle } from '@hooks/useTitle';
 
 export const PublicRequest = () => {
   const [street, setStreet] = useState('');
@@ -44,7 +44,11 @@ export const PublicRequest = () => {
           ✅ Request submitted successfully!
         </div>
         <button 
-          onClick={() => setStatus('idle')} 
+          onClick={() => {
+            setStreet(''); 
+            setNotes(''); 
+            setStatus('idle');
+          }} 
           className="text-blue-600 hover:underline font-medium"
         >
           Submit another request

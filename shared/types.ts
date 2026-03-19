@@ -5,19 +5,12 @@
 import type { Zone as PrismaZone, Address as PrismaAddress, User as PrismaUser, Role as PrismaRole } from '../backend/src/prisma/generated/client.js';
 
 export type Zone = PrismaZone;
-export type Address = PrismaAddress;
+export type Address = PrismaAddress & { zone?: Zone & { users?: User[] }} ;
 export type Role = PrismaRole;
-export type User = PrismaUser;
+export type User = PrismaUser & { zones?: Zone[] };
 
 // this has to match AddressStatus in schema.prisma
 export const AddressStatus = {
   unvisited: 'unvisited',
   completed: 'completed',
 } as const;
-
-// You can also define custom API response shapes here
-export interface ApiResponse<T> {
-  data: T;
-  error?: string;
-  timestamp: string;
-}

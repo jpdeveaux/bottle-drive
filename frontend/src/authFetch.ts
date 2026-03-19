@@ -19,7 +19,9 @@ export const authFetch = async (url: `/${string}`, options: RequestInit = {}) =>
   if (response.status === 401) {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    window.location.href = '/login';
+    
+    const currentPath = window.location.pathname;
+    window.location.href = `/login?redirectTo=${encodeURIComponent(currentPath)}`;
   }
   else if (!response.ok) {
     const errorData = await response.json();

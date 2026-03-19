@@ -8,6 +8,8 @@ backend/src/prisma
 # Environment Secrets (Crucial!)
 .env
 */.env
+.vscode/*
+.vscode
 
 # Build outputs
 dist/

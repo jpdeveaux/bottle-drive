@@ -11,15 +11,20 @@ const options: NodeGeocoder.Options & { userAgent?: string } = {
 
 const geocoder = NodeGeocoder(options);
 
-export const geocodeAddress = async (address: string) => {
+export interface Coords {
+  lat: number;
+  lng: number;
+};
+
+export const geocodeAddress = async (address: string) : Promise<Coords | null> => {
   try {
     const res = await geocoder.geocode(address);
     if (res.length > 0) {
       const g = res[0];
-      return {
+      return (g.latitude && g.longitude) ? {
         lat: g.latitude,
         lng: g.longitude
-      };
+      } : null;
     }
     return null;
   } catch (err) {

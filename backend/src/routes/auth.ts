@@ -1,57 +1,126 @@
 import { Router } from 'express';
 import { prisma } from '../db.js';
-import { verifyGoogleToken, generateLocalToken } from '../middleware/auth.js';
+import { authenticateJWT_newUser, AuthRequest, verifyGoogleToken, generateLocalToken } from '@auth';
+import { Server } from 'socket.io';
+import jwt from 'jsonwebtoken';
+const JWT_SECRET = process.env.JWT_SECRET || 'super-secret-change-me';
 
-const router = Router();
+export default (io: Server) => {
+  const router = Router();
+  
+  // connect this user to their own "room".
+  io.on('connection', (socket) => {
+    console.log('new connection');
+    const userId = socket.handshake.query.userId;
+    const token = socket.handshake.auth.token;
+            
+    if (userId) {
+      console.log(' - setting up room');
+      const roomName = `user_${userId}`;
+      socket.join(roomName);
+      console.log(` - user ${userId} joined room: ${roomName}`);
 
-router.post('/google', async (req, res) => {
-  const { idToken } = req.body;
+      // // time out room after 10 minutes of inactivity
+      let t = setTimeout(() => {
+        console.log('   *** approval window expired for user '+userId);
+        io.to(roomName).emit("approval_timeout");
+      }, 10*60000);
 
-  const payload = await verifyGoogleToken(idToken);
-  if (!payload || !payload.email) {
-    return res.status(401).json({ error: "Invalid Google Token" });
-  }
+      socket.on('disconnect', () => {
+        if (t) clearTimeout(t);
+        console.log(' ==> "room" user disconnected');
+      });
+    }
+    else {
+      // validate token.
+      console.log('validating token '+token);
+      jwt.verify(token, JWT_SECRET, (err: any, decoded: any) => {
+        if (err) {
+          console.log('disconnecting - invalid token');
+          socket.disconnect();
+        }
+        else
+        {
+          console.log('token verified -- '+JSON.stringify(decoded));
+          socket.join('verified');
+          console.log(' -> joined "verified" room');
 
-  try {
-    // 1. Find or Create the user
-    // Note: If the email matches your .env ADMIN email, 
-    // the seed script already created them with the ADMIN role.
-    let user = await prisma.user.findUnique({
-      where: { email: payload.email }
-    });
+          if(decoded.role === 'admin') {
+            socket.join('admin');
+            console.log(' -> admin user, joined "admin" room');
+          }
 
-    if (!user) {
-      user = await prisma.user.create({
-        data: {
-          email: payload.email,
-          name: payload.name,
-          googleId: payload.sub, // The unique Google ID
-          role: 'volunteer',      // Default role
-          isApproved: false
+          socket.on('disconnect', () => {
+            console.log(' ==> standard socket disconnect.');
+          });
         }
       });
-    } else if (!user.googleId) {
-      // Update the placeholder from the seed script with their real Google ID
-      user = await prisma.user.update({
-        where: { id: user.id },
-        data: { googleId: payload.sub, name: payload.name }
+    }
+  });
+
+  router.get('/me', authenticateJWT_newUser, async (req: AuthRequest, res) => {
+    try {
+      const user = await prisma.user.findUnique({
+        where: { id: req.user?.id }
       });
+
+      if (!user) return res.status(404).json({ error: "User not found" });
+
+      // Generate a new token for this user
+      const token = generateLocalToken(user);
+
+      res.json({ 
+        token, 
+        user: { id: user.id, email: user.email, role: user.role, name: user.name, isApproved: user.isApproved },
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  router.post('/google', async (req, res) => {
+    const { idToken } = req.body;
+
+    const payload = await verifyGoogleToken(idToken);
+    if (!payload || !payload.email) {
+      return res.status(401).json({ error: "Invalid Google Token" });
     }
 
-    if (!user.isApproved) {
-      return res.status(403).json({ error: "Access pending admin approval." });
+    try {
+      // Find or Create the user
+      let user = await prisma.user.findUnique({
+        where: { email: payload.email }
+      });
+
+      if (!user) {
+        user = await prisma.user.create({
+          data: {
+            email: payload.email,
+            name: payload.name,
+            googleId: payload.sub, // The unique Google ID
+            role: 'volunteer',      // Default role
+            isApproved: (process.env.AUTO_APPROVE_NEW_USERS === 'true')
+          }
+        });
+      } else if (!user.googleId) {
+        // Update the placeholder from the seed script with their real Google ID
+        user = await prisma.user.update({
+          where: { id: user.id },
+          data: { googleId: payload.sub, name: payload.name }
+        });
+      }
+     
+      // Generate local JWT for the frontend to use
+      const token = generateLocalToken(user);
+
+      res.json({ 
+        token, 
+        user: { id: user.id, email: user.email, role: user.role, name: user.name, isApproved: user.isApproved } 
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Authentication failed" });
     }
-    
-    // 2. Generate our OWN local JWT for the frontend to use
-    const token = generateLocalToken(user);
+  });
 
-    res.json({ 
-      token, 
-      user: { id: user.id, email: user.email, role: user.role, name: user.name } 
-    });
-  } catch (error) {
-    res.status(500).json({ error: "Authentication failed" });
-  }
-});
-
-export default router;
+  return router;
+};
