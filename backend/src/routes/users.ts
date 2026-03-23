@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { prisma } from '../db.js';
-import { authenticateJWT, AuthRequest } from '@auth';
+import { authenticateJWT, authApproved, authAdmin, AuthRequest } from '@auth';
 import { Role } from '@shared/types.js';
 import { Server } from 'socket.io';
 
@@ -14,10 +14,7 @@ export default(io: Server) => {
   const router = Router();
 
   // Middleware to ensure ONLY admins get past this point for ALL routes in this file
-  router.use(authenticateJWT, (req: AuthRequest, res, next) => {
-    if (req.user?.role !== 'admin') return res.status(403).json({ error: 'Forbidden' });
-    next();
-  });
+  router.use(authenticateJWT, authApproved, authAdmin);
 
   // GET /api/users
   router.get('/', async (req, res) => {

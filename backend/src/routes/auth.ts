@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { prisma } from '../db.js';
-import { authenticateJWT_newUser, AuthRequest, verifyGoogleToken, generateLocalToken } from '@auth';
+import { authenticateJWT, AuthRequest, verifyGoogleToken, generateLocalToken } from '@auth';
 import { Server } from 'socket.io';
 import jwt from 'jsonwebtoken';
 const JWT_SECRET = process.env.JWT_SECRET || 'super-secret-change-me';
@@ -58,7 +58,7 @@ export default (io: Server) => {
     }
   });
 
-  router.get('/me', authenticateJWT_newUser, async (req: AuthRequest, res) => {
+  router.get('/me', authenticateJWT, async (req: AuthRequest, res) => {
     try {
       const user = await prisma.user.findUnique({
         where: { id: req.user?.id }
