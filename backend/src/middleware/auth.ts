@@ -48,11 +48,6 @@ export const authenticateJWT = (req: AuthRequest, res: Response, next: NextFunct
       }
       req.user = decoded;
 
-      // make sure user is approved.
-      if(!req.user?.isApproved) {
-        return res.status(401).json({ error: 'User not authorized'});
-      }
-
       next();
     });
   } else {
@@ -60,21 +55,16 @@ export const authenticateJWT = (req: AuthRequest, res: Response, next: NextFunct
   }
 };
 
-export const authenticateJWT_newUser = (req: AuthRequest, res: Response, next: NextFunction) => {
-  const authHeader = req.headers.authorization;
-
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    const token = authHeader.split(' ')[1];
-
-    jwt.verify(token, JWT_SECRET, (err: any, decoded: any) => {
-      if (err) {
-        return res.status(403).json({ error: "Session expired or invalid" });
-      }
-      req.user = decoded;
-
-      next();
-    });
-  } else {
-    res.status(401).json({ error: "Authorization header missing" });
+export const authApproved = (req: AuthRequest, res: Response, next: NextFunction) => {
+  if(!req.user?.isApproved) {
+    return res.status(401).json({ error: 'User not authorized'});
   }
+  next();
+};
+
+export const authAdmin = (req: AuthRequest, res: Response, next: NextFunction) => {
+  if (req.user?.role !== 'admin') {
+    return res.status(403).json({ error: 'Forbidden' });
+  }
+  next();
 };
