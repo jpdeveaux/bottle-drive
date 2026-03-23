@@ -3,6 +3,7 @@ import { useTitle } from '@hooks/useTitle';
 import { useAuth } from '@context/UseAuth';
 import { useNavigate } from 'react-router-dom';
 import { useSocket } from "@hooks/useSocket";
+import { format } from 'date-fns';
 
 // Sub-components (we'll assume these are defined in separate files)
 import { AddressManager } from './Admin/AddressManager';
@@ -10,6 +11,9 @@ import { ZoneManager } from './Admin/ZoneManager';
 import { UserManager } from './Admin/UserManager';
 
 export const Admin = () => {
+  const EVENT_DATE = new Date(import.meta.env.VITE_DATE_TIME);
+  const EVENT_DATE_STR: string = format(EVENT_DATE, 'cccc, MMMM do, yyyy @ haaa');
+  
   const [activeTab, setActiveTab] = useState<'users' | 'addresses' | 'zones'>('addresses');
   const { logout } = useAuth();
 
@@ -33,8 +37,11 @@ export const Admin = () => {
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between">
-          <h1 className="text-2xl font-bold mb-6 text-gray-800">{TITLE} - Admin Control Panel</h1>
+        <div className="flex justify-between mb-6">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-800">{TITLE} - Admin Control Panel</h1>
+            <h2>{EVENT_DATE_STR}</h2>
+          </div>
           <div className='flex gap-2'>
             <button 
                 onClick={goToMap}

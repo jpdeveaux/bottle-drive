@@ -1,6 +1,6 @@
-import * as React from 'react';
-import { useState } from 'react';
+import { useState, SubmitEvent } from 'react';
 import { useTitle } from '@hooks/useTitle';
+import { format, compareAsc } from 'date-fns';
 
 export const PublicRequest = () => {
   const [street, setStreet] = useState('');
@@ -9,18 +9,32 @@ export const PublicRequest = () => {
   const BACKEND = import.meta.env.VITE_API_URL;
   const ADDRESS_PLACEHOLDER = import.meta.env.VITE_ADDRESS_PLACEHOLDER;
   const TITLE = import.meta.env.VITE_TITLE;
+  const EVENT_DATE = new Date(import.meta.env.VITE_DATE_TIME);
+  const EVENT_DATE_STR: string = format(EVENT_DATE, 'cccc, MMMM do, yyyy @ haaa');
+  const EVENT_IN_PAST: boolean = compareAsc(EVENT_DATE, new Date()) == -1;
 
   useTitle(`${TITLE}`);
   
-  const handleSubmit = async (e: React.FormEvent) => {
+  interface RequestPayload {
+    street: string;
+    notes: string;
+  }
+
+  const handleSubmit = async (e: SubmitEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
+
+    if (EVENT_IN_PAST && !window.confirm("The bottle drive has already started/happened.  Submit this address?")) {
+      return;
+    }
+
     setStatus('loading');
 
     try {
-      const res = await fetch(`${BACKEND}/api/addresses/submit`, {
+      const payload: RequestPayload = { street, notes };
+      const res = await fetch(`${BACKEND}/api/public/submit`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ street, notes }),
+        body: JSON.stringify(payload),
       });
 
       if (res.ok) setStatus('success');
@@ -35,7 +49,10 @@ export const PublicRequest = () => {
   <div className="max-w-md mx-auto bg-white p-8 rounded-lg shadow-md border border-gray-200">
     <h1 className="text-center text-3xl font-extrabold text-gray-900 tracking-tight">
       {TITLE}
-    </h1>    
+    </h1> 
+    <h2 className={`text-center text-2xl ${EVENT_IN_PAST ? 'text-red-800 font-bold' : 'text-gray-900'} tracking-tight mb-5`}>
+      {EVENT_DATE_STR}
+    </h2> 
     <h1 className="text-2xl font-bold text-gray-900 mb-6 text-center">Request a Pickup</h1>
     
     {status === 'success' ? (
