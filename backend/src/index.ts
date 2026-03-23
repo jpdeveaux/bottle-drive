@@ -4,6 +4,7 @@ import { createServer } from 'http';
 import cors from 'cors';
 
 import addressRoutes from '@routes/addresses.js';
+import publicRoutes from '@routes/public.js';
 import userRoutes from '@routes/users.js';
 import authRoutes from '@routes/auth.js';
 import zoneRoutes from '@routes/zones.js';
@@ -26,6 +27,7 @@ const io = new Server(server, {
 
 app.use(express.json());
 
+app.use('/api/public', publicRoutes(io));
 app.use('/api/auth', authRoutes(io));
 app.use('/api/users', userRoutes(io));
 app.use('/api/zones', zoneRoutes(io));
