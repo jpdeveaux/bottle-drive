@@ -1,43 +1,18 @@
 import { Router } from 'express';
 import { prisma } from '../db.js';
-import { authenticateJWT, AuthRequest } from '@auth';
-import { geocodeAddress, Coords } from '../geocoder.js';
+import { authenticateJWT, authApproved, authAdmin, AuthRequest } from '@auth';
+import { geocodeAddress, checkForZone, ZONE_NAME_AND_USERS } from '../geocoder.js';
 import type { IDParams } from '@auth';
 import { Server } from 'socket.io';
-
-// this adds zone/user info to the address being returned
-const ZONE_NAME_AND_USERS = { 
-  zone: { 
-    select: { 
-      name: true, 
-      users: { 
-        select: { 
-          id: true    // include user IDs linked to this address.
-        }
-      }
-    }
-  }
-};
 
 export default (io: Server) => {
   const router = Router();
 
-  const checkForZone = async (addr: Coords): Promise<string|null> => {
-    const zones = await prisma.zone.findMany();
-    let assignedZoneId = null;
+  // all calls here use authenticateJWT and authApproved.  if we get through it, we're OK.
+  router.use(authenticateJWT, authApproved);
 
-    for (const zone of zones) {
-      if (addr.lat <= (zone.north || 0) && addr.lat >= (zone.south || 0) && addr.lng <= (zone.east || 0) && addr.lng >= (zone.west || 0) ) {
-        assignedZoneId = zone.id;
-        break;
-      }
-    } 
-
-    return assignedZoneId;
-  };
-
-  // Volunteer: Get all pins
-  router.get('/', authenticateJWT, async (req: AuthRequest, res) => {
+  // return all addresses
+  router.get('/', async (req: AuthRequest, res) => {
     const currentUser = req.user;
     if(!currentUser) return;
     
@@ -63,14 +38,11 @@ export default (io: Server) => {
       orderBy: [{ zone: { name: 'asc' }}, { street: 'asc' }]
     });
 
-    console.log('Fetched addresses');
+    console.log('Fetched '+(addresses?.length || '0')+' addresses');
     res.json(addresses);
   });
 
-  router.patch('/:id/location', authenticateJWT, async (req: AuthRequest & { params: IDParams }, res) => {
-    // admin only for this one
-    if (req.user?.role !== 'admin') return res.status(403).json({ error: 'Forbidden' });
-
+  router.patch('/:id/location', authAdmin, async (req: AuthRequest & { params: IDParams }, res) => {
     const actingUserId = req.user?.id; 
     const street = req.body.street;
     const addressId = req.params.id;
@@ -117,7 +89,7 @@ export default (io: Server) => {
   });
 
   // Volunteer: Update status/notes
-  router.patch('/:id/status', authenticateJWT, async (req: AuthRequest & { params: IDParams }, res) => {
+  router.patch('/:id/status', async (req: AuthRequest & { params: IDParams }, res) => {
     const { status, notes } = req.body;
     const actingUserId = req.user?.id; 
     console.log('Status (%s) - notes (%s)', status, notes);
@@ -147,7 +119,7 @@ export default (io: Server) => {
   });
 
   // Delete an address
-  router.delete('/:id', authenticateJWT, async (req: AuthRequest & { params: IDParams }, res) => {
+  router.delete('/:id', authAdmin, async (req: AuthRequest & { params: IDParams }, res) => {
     try {
       await prisma.address.delete({ where: { id: req.params.id } });
       io.to('verified').emit('addressDeleted', req.params.id);
@@ -155,37 +127,6 @@ export default (io: Server) => {
     } catch (e) {
       console.log('Delete failure: '+e);
       res.status(500).send(e);
-    }
-  });
-
-  // Public: Submit new address (No Auth Required)
-  router.post('/submit', async (req, res) => {
-    const { street, notes } = req.body;
-    const geo = await geocodeAddress(street);
-
-    if (!geo || !geo.lat || !geo.lng) {
-      return res.status(400).json({ error: "Could not find that location. Please be more specific." });
-    }
-
-    try {
-      const newAddress = await prisma.address.create({
-        data: {
-          street: street,
-          lat: geo.lat,
-          lng: geo.lng,
-          notes: notes || "",
-          status: "unvisited",
-          zoneId: await checkForZone(geo)
-        },
-        include: ZONE_NAME_AND_USERS
-      });
-
-      io.to('verified').emit('addressUpdated', newAddress);
-      console.log('Address added: ', newAddress);
-
-      res.json({ success: true, message: "Pickup requested!" });
-    } catch (err) {
-      res.status(500).json({ error: "Database error" });
     }
   });
 
