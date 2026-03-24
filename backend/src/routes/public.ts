@@ -22,7 +22,7 @@ export default (io: Server) => {
           lat: geo.lat,
           lng: geo.lng,
           notes: notes || "",
-          status: "unvisited",
+          state: "unvisited",
           zoneId: await checkForZone(geo)
         },
         include: ZONE_NAME_AND_USERS
@@ -33,6 +33,7 @@ export default (io: Server) => {
 
       res.json({ success: true });
     } catch (err) {
+      console.log('Error: %s', err);
       res.status(500).json({ error: "Database error" });
     }
   });
