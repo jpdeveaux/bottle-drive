@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { authFetch } from '@auth'; 
 import { socket } from "@hooks/useSocket";
-import type { Role, User } from '@shared/types';
+import type { Role, User } from '@types';
 import { useZones } from '@hooks/useZones';
 
 export const UserManager = () => {

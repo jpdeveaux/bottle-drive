@@ -4,7 +4,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTitle } from '@hooks/useTitle';
 import { useState, useEffect } from 'react';
 import { socket } from "@hooks/useSocket";
-import { User } from '@shared/types';
+import { User } from '@types';
 
 interface NotApprovedType {
   name: string;
@@ -170,21 +170,14 @@ export const Login = () => {
             />
           </div>
         </div>
-
-        <div className="mt-8 border-t border-gray-100 pt-6">
-          <div className="text-xs text-center text-gray-400">
-            Authorized personnel only. Access is logged and monitored.
-          </div>
+      
+        <div className="mt-6 text-center">
+          <a href="/" className="text-sm font-medium text-blue-600 hover:text-blue-500 transition-colors">
+            ← Go to Pickup Request Form
+          </a>
         </div>
       </div>
-      
-      <div className="mt-6 text-center">
-        <a href="/" className="text-sm font-medium text-blue-600 hover:text-blue-500 transition-colors">
-          ← Go to Pickup Request Form
-        </a>
-      </div>
     </div>
-
     )}
 </div>
   );
