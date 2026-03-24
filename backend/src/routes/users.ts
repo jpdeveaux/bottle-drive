@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { prisma } from '../db.js';
 import { authenticateJWT, authApproved, authAdmin, AuthRequest } from '@auth';
-import { Role } from '@shared/types.js';
+import { Role } from '@types';
 import { Server } from 'socket.io';
 
 interface UserParams {

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { authFetch } from "@auth";
 import { useAuth } from "@context/UseAuth";
 import { socket } from "@hooks/useSocket";
-import type { Zone } from "@shared/types";
+import type { Zone } from "@types";
 
 export function useZones() {
   const [zones, setZones] = useState<Zone[]>([]);

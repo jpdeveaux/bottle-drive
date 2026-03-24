@@ -1,6 +1,6 @@
 // useHeartbeat.ts
 import { useEffect } from 'react';
-import { User } from '@shared/types';
+import { User } from '@types';
 import { authFetch } from '@auth';
 
 export const useHeartbeat = (user: User | null) => {

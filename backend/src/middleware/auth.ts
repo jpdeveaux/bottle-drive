@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { OAuth2Client } from 'google-auth-library';
-import { User } from '@shared/types.js';
+import { User } from '@types';
 import jwt from 'jsonwebtoken';
 
 const client = new OAuth2Client(process.env.VITE_GOOGLE_CLIENT_ID);
