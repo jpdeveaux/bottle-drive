@@ -1,11 +1,11 @@
 import { authFetch } from '@auth'; 
-import type { Address } from '@shared/types';
-import { AddressStatus } from '@shared/types';
+import { Address } from '@types';
 import { BlurInput } from './BlurInput';
 import { useAddresses } from '@hooks/useAddresses';
+import { AddressStateSelect } from '@components/AddressStateSelect';
 
 export const AddressManager = () => {
-  const { addresses } = useAddresses();  // this sets up addresses state variable, along with useEffect hooks.
+  const { addresses, handleAddressState } = useAddresses();  // this sets up addresses state variable, along with useEffect hooks.
  
   const handleLocationChange = async (id: string, data: Partial<Address>) => {
     try {
@@ -18,18 +18,6 @@ export const AddressManager = () => {
     } catch (err) {
       console.error("Location update failed: ", err);
     }
-  };  
-
-  const handleUpdateStatus = async (id: string, data: Partial<Address> ) => {
-    try {
-      console.log('Updating address - ', data);
-      await authFetch(`/addresses/${id}/status`, {
-        method: 'PATCH',
-        body: JSON.stringify(data)
-      });
-    } catch (err) {
-      console.error("Location status update failed: ", err);
-    }
   };
 
   const handleDelete = async (id: string) => {
@@ -41,8 +29,6 @@ export const AddressManager = () => {
       console.error("Location delete failed: ", err);
     }
   };
-
-  const statuses = Object.values(AddressStatus);
 
   return (  
   <div className="bg-white shadow-md rounded-lg border border-gray-200 overflow-hidden">
@@ -79,7 +65,7 @@ export const AddressManager = () => {
                   className="w-full bg-transparent border-b border-transparent focus:border-blue-400 focus:outline-none text-xs text-gray-500 italic mt-1"
                   value={addr.notes || ''}
                   placeholder="Add notes..."
-                  onCommit={(notes) => { handleUpdateStatus(addr.id, { notes }) }}
+                  onCommit={(notes) => { handleAddressState(addr.id, { notes }) }}
                 />
               </td>
               <td className="px-4 py-3">
@@ -94,17 +80,10 @@ export const AddressManager = () => {
                 )}
               </td>
               <td className="px-4 py-3">
-                <select 
-                  value={addr.status}
-                  onChange={(e) => handleUpdateStatus(addr.id, { status: e.target.value })}
-                  className="cap bg-gray-50 border border-gray-300 rounded p-1 text-xs focus:ring-blue-500 focus:border-blue-500"
-                >
-                 {statuses.map((status) => (
-                    <option key={status} value={status}>
-                      {status}
-                    </option>
-                  ))}
-                </select>
+                <AddressStateSelect
+                  addr={addr}
+                  handler={handleAddressState}
+                />
               </td>
               <td className="px-4 py-3 space-x-3 whitespace-nowrap">
                 <button 

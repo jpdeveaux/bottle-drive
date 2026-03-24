@@ -1,8 +1,7 @@
 import * as L from 'leaflet';
 import { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Rectangle, Tooltip } from 'react-leaflet';
-import type { Address } from '@shared/types';
-import { AddressStatus, User } from '@shared/types';
+import { User } from '@types';
 import { socket, useSocket } from "@hooks/useSocket";
 import { authFetch } from '@auth';
 import { useAuth } from '@context/UseAuth';
@@ -17,6 +16,7 @@ import { useTitle } from '@hooks/useTitle';
 import { useAddresses } from '@hooks/useAddresses';
 import { useHeartbeat } from '@hooks/useHeartbeat';
 import { useZones } from '@hooks/useZones';
+import { AddressStateSelect } from './AddressStateSelect';
 
 const ICON_BASE: Partial<L.IconOptions> = {
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
@@ -45,7 +45,7 @@ function Map() {
   const [showZoneModal, setShowZoneModal] = useState(false);
   const [pendingZone, setPendingZone] = useState<{ ids: string[], bounds: L.LatLngBounds } | null>(null);
   const { authState } = useAuth();
-  const { addresses } = useAddresses();
+  const { addresses, handleAddressState } = useAddresses();
   const { zones } = useZones();
 
   // Pulling from .env (with fallbacks if the env vars are missing)
@@ -55,19 +55,6 @@ function Map() {
 
   const getIcon = (status: string) => {
     return status === 'completed' ? greenIcon : blueIcon;
-  };
-
-  // Socket.io handles the UI refresh
-  const handleAddressChange = async (id: string, data: Partial<Address>) => {
-    try {
-      await authFetch(`/addresses/${id}/status`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-    } catch (err) {
-      console.error("Update failed", err);
-    }
   };
 
   const handleSaveNewZone = async (name: string, color: string, bounds: L.LatLngBounds, ids: string[]) => {
@@ -177,7 +164,7 @@ function Map() {
         )}
 
         {addresses.map((addr) => (
-          <Marker key={addr.id} position={[addr.lat, addr.lng]} icon={getIcon(addr.status)}>
+          <Marker key={addr.id} position={[addr.lat, addr.lng]} icon={getIcon(addr.state)}>
             <Popup>
               <div className="min-w-[200px] p-1 font-sans text-gray-800">
                 <div className="mb-3">
@@ -191,15 +178,10 @@ function Map() {
                   <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">
                     Status
                   </label>
-                  <select 
-                    value={addr.status} 
-                    onChange={( e ) => handleAddressChange(addr.id, { status: e.target.value })}
-                    className="cap w-full bg-gray-50 border border-gray-200 rounded-md p-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                  >
-                    {Object.values(AddressStatus).map((status) => (
-                      <option key={status} value={status}>{status}</option>
-                    ))}
-                  </select>
+                  <AddressStateSelect
+                     addr={addr}
+                     handler={handleAddressState}
+                  />
                 </div>
 
                 <div>
@@ -211,7 +193,7 @@ function Map() {
                       <BlurTextArea
                         className="w-full bg-blue-50 border border-blue-100 rounded-md p-2 text-sm text-blue-900 placeholder-blue-300 focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all resize-y h-20"
                         value={addr.notes}
-                        onCommit={( notes ) => { handleAddressChange(addr.id, { notes }); }}
+                        onCommit={( notes ) => { handleAddressState(addr.id, { notes }); }}
                       />
                     : <div className="w-full">{addr.notes}</div>
                   }
