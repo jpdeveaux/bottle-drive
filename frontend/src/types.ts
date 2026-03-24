@@ -23,6 +23,7 @@ export interface User {
 export interface Zone {
   id: string;
   name: string;
+  color: string;
   north: number;
   south: number;
   east: number;
