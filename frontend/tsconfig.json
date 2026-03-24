@@ -7,16 +7,15 @@
     "sourceMap": true,
     "baseUrl": ".",
     "paths": {
-        "@shared/*": ["../shared/*"],
         "@context/*": ["src/context/*"],
         "@hooks/*": ["src/hooks/*"],
         "@components/*": ["src/components/*"],
-        "@auth": ["src/authFetch.js"]
+        "@auth": ["src/authFetch.js"],
+        "@types": ["src/types.js"]
     }
   },
   "include": [
     ".",
     "src",
-    "../shared"          /* make sure TS will type‑check the shared code */
   ]  
 }

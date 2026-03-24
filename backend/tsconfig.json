@@ -10,10 +10,9 @@
     "skipLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@shared/*": ["../shared/*"],
       "@routes/*": ["src/routes/*"],
       "@auth": ["src/middleware/auth.js"],
-      "*": ["node_modules/*", "prisma/generated-client/*"] 
+      "@types": ["src/types.js"],
     }
   },
   "include": [
