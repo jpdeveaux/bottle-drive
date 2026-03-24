@@ -57,7 +57,7 @@ model Address {
   street    String
   lat       Float
   lng       Float
-  status    AddressStatus @default(unvisited)
+  state     AddressState @default(unvisited)
   notes     String?
 
   zoneId    String?
@@ -75,7 +75,7 @@ enum Role {
   volunteer
 }
 
-enum AddressStatus {
+enum AddressState {
   unvisited
   completed
 }
