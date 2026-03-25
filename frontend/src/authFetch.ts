@@ -16,7 +16,7 @@ export const authFetch = async (url: `/${string}`, options: RequestInit = {}) =>
   const response = await fetch(`${BACKEND}/api${url}`, { ...options, headers });
 
   // Auto-logout if the token expired
-  if (response.status === 401) {
+  if (response.status === 401 || response.status === 403) {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     
