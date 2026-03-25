@@ -44,7 +44,7 @@ export const authenticateJWT = (req: AuthRequest, res: Response, next: NextFunct
 
     jwt.verify(token, JWT_SECRET, (err: any, decoded: any) => {
       if (err) {
-        return res.status(403).json({ error: "Session expired or invalid" });
+        return res.status(401).json({ error: "Session expired or invalid" });
       }
       req.user = decoded;
 
