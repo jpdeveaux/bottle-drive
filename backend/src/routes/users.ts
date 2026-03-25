@@ -32,18 +32,18 @@ export default(io: Server) => {
   });
 
   router.get('/active', async (req, res) => {
-    const fiveMinutesAgo = new Date(Date.now() - 300 * 1000);
+    const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
 
     const activeVolunteers = await prisma.user.findMany({
       where: {
         role: 'volunteer',
         lastSeen: {
-          gte: fiveMinutesAgo
+          gte: thirtyMinutesAgo
         }
       },
       select: {
         id: true,
-        email: true, // or name
+        email: true,
         lastLat: true,
         lastLng: true,
         lastSeen: true,
