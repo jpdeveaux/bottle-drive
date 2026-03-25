@@ -31,7 +31,7 @@ app.use('/api/public', publicRoutes(io));
 app.use('/api/auth', authRoutes(io));
 app.use('/api/users', userRoutes(io));
 app.use('/api/zones', zoneRoutes(io));
-app.use('/api/heartbeat', heartbeatRoutes);
+app.use('/api/heartbeat', heartbeatRoutes(io));
 app.use('/api/addresses', addressRoutes(io));
 
 server.listen(3001, '0.0.0.0', () => console.log("Server running on port 3001"));
