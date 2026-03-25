@@ -8,7 +8,7 @@ import { useAuth } from '@context/UseAuth';
 import 'leaflet/dist/leaflet.css';
 
 import { MapZoneHandler } from './MapZoneHandler';
-import { AdminToolbar } from './AdminToolbar';
+import { Toolbar } from './Toolbar';
 import { CreateZoneModal } from './CreateZoneModal';
 import { BlurTextArea } from './Admin/BlurTextArea';
 
@@ -102,15 +102,26 @@ function Map() {
     if (authState?.user?.role === 'admin') {
       fetchUsers();
 
-      // Listen for real-time updates from the Controller
-      socket.on('usersUpdated', (updatedUsers: User[]) => {
-        setUsers(updatedUsers);
+      // update the user that was updated.  If the user wasn't there, add to the map.
+      socket.on('userUpdated', (updatedUser: User) => {
+        setUsers(curUsers => {
+          const exists = curUsers.some(a => a.id === updatedUser.id);
+
+          if (exists) {
+            return curUsers.map(u =>
+              u.id === updatedUser.id ? updatedUser : u
+            );
+          }
+
+          return [...curUsers, updatedUser];
+          
+        });
       });
     }
 
     return () => { 
       if(authState?.user?.role === 'admin') {
-        socket.off('usersUpdated'); 
+        socket.off('userUpdated'); 
       }
       console.log('useEffect cleanup: socket listener removed'); };
   }, [authState]);
@@ -125,24 +136,24 @@ function Map() {
   return (
     <div style={{ position: 'relative' }}>
       <div className="absolute top-5 right-5 z-[1000] flex flex-col gap-2">
-        {authState?.user?.role === 'admin' && (
-          <AdminToolbar mode={interactionMode} setMode={setInteractionMode} />
-        )}
+        <Toolbar mode={interactionMode} setMode={setInteractionMode} />
       </div>
 
       <MapContainer center={[centerLat, centerLng]} zoom={zoomLevel} scrollWheelZoom={true}
         className={`h-full w-full ${interactionMode === 'draw-zone' ? 'cursor-crosshair' : ''}`}>
 
-        <MapZoneHandler
-          interactionMode={interactionMode} 
-          addresses={addresses}
-          zones={zones}
-          showZoneModal={showZoneModal}
-          onSelectionComplete={(ids: string[], bounds: L.LatLngBounds) => {
-            setPendingZone({ids, bounds});
-            setShowZoneModal(true);
-          }}
-        />
+        {authState?.user?.role === 'admin' && (
+          <MapZoneHandler
+            interactionMode={interactionMode} 
+            addresses={addresses}
+            zones={zones}
+            showZoneModal={showZoneModal}
+            onSelectionComplete={(ids: string[], bounds: L.LatLngBounds) => {
+              setPendingZone({ids, bounds});
+              setShowZoneModal(true);
+            }}
+          />
+        )}
 
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
