@@ -3,7 +3,7 @@ node_modules/
 npm-debug.log
 
 # Prisma 7 Generated Client
-backend/src/prisma
+backend/src/prisma/generated
 
 # Environment Secrets (Crucial!)
 .env

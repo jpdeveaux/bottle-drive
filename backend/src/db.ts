@@ -1,13 +1,11 @@
-import { Pool } from 'pg';
-import { PrismaPg } from '@prisma/adapter-pg';
-import { PrismaClient } from './prisma/generated/client.js';
+import { PrismaClient } from '@prisma/client';
 
-// 1. Setup the Connection Pool
-const connectionString = process.env.DATABASE_URL;
-const pool = new Pool({ connectionString });
+const globalForPrisma = global as unknown as { prisma: PrismaClient };
 
-// 2. Initialize the Adapter
-const adapter = new PrismaPg(pool);
+export const prisma =
+  globalForPrisma.prisma ||
+  new PrismaClient({
+    log: ['query', 'error', 'warn'],
+  });
 
-// 3. Pass the Adapter to Prisma Client
-export const prisma = new PrismaClient({ adapter });
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;

@@ -4,11 +4,12 @@
     "module": "NodeNext",                /* Required for modern Node.js */
     "moduleResolution": "NodeNext",
     "outDir": "./dist",
+    "rootDir": "./src",
     "esModuleInterop": true,            /* Required for the 'pg' library */
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "skipLibCheck": true,
-    "baseUrl": ".",
+    "baseUrl": "./",
     "paths": {
       "@routes/*": ["src/routes/*"],
       "@auth": ["src/middleware/auth.js"],
@@ -16,8 +17,6 @@
     }
   },
   "include": [
-    "src/**/*", 
-    "src/prisma/generated", 
-    "prisma/seed.ts"  ],
-  "exclude": ["node_modules"]
+    "src/**/*"],
+  "exclude": ["node_modules", "dist"]
 }
