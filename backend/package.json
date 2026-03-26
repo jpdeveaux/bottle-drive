@@ -28,7 +28,6 @@
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
-    "@types/node": "^25.3.3",
     "@types/node-geocoder": "^4.2.6",
     "@types/pg": "^8.18.0",
     "prisma": "^7.5.0",
@@ -36,8 +35,5 @@
     "tsc-alias": "^1.8.16",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
-  },
-  "prisma": {
-    "seed": "node dist/prisma/seed.js"
   }
 }
