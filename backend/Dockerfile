@@ -54,5 +54,5 @@ RUN npm ci --omit=dev
 RUN npx prisma generate
 
 RUN chmod +x /usr/local/bin/entrypoint.sh
-# ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["node", "dist/index.js"]
