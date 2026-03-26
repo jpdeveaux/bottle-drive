@@ -19,7 +19,7 @@ export function useAddresses() {
 
   useEffect(() => {
     function handleAddressUpdated(updatedAddress: Address) {
-      if(authState?.user?.role === 'admin' || !updatedAddress.zone || updatedAddress.zone.users?.some(user => user.id == authState.user.id)) {
+      if(authState?.user?.role === 'admin' || !updatedAddress.zone || updatedAddress.zone.users?.some(user => user.id == authState.user?.id)) {
         console.log("Updated address received:", updatedAddress);
 
         setAddresses(current => {
