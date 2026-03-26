@@ -1,7 +1,7 @@
 # =========================
 # Base image (shared)
 # =========================
-FROM node:25-slim AS base
+FROM node:22-slim AS base
 
 RUN apt-get update && apt-get install -y tzdata openssl netcat-openbsd && rm -rf /var/lib/apt/lists/*
 
