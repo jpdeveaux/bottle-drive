@@ -25,9 +25,11 @@ services:
       - db
 
   frontend:
-    build: ./frontend
+    build: 
+      context: ./frontend
+      target: production
     ports:
-      - "3000:5173" # Map Windows port 3000 to Vite's 5173
+      - "3000:80" # Map Windows port 3000 to Vite's 5173
     env_file:
       - ./.env
     depends_on:
