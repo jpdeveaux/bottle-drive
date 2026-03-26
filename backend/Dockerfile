@@ -46,13 +46,15 @@ ENV NODE_ENV=production
 
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
-COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY entrypoint.sh ./entrypoint.sh
 
 # IMPORTANT: Re-generate the client in the production node_modules
 # We don't need a real URL here, just the variable name defined in schema.prisma
 RUN npm ci --omit=dev
 RUN npx prisma generate
 
-RUN chmod +x /usr/local/bin/entrypoint.sh
-ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+# the prisma config file breaks npx prisma generate, but it's needed by "npx prisma migrate deploy" in entrypoint.sh
+COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
+RUN chmod +x ./entrypoint.sh
+ENTRYPOINT ["./entrypoint.sh"]
 CMD ["node", "dist/index.js"]
