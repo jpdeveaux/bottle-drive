@@ -8,7 +8,7 @@ type _InputProps = {
 };
 
 export function BlurInput({ value, placeholder, onCommit, className }: _InputProps) {
-  const [editValue, setEditValue] = useState<string|null>(value);
+  const [editValue, setEditValue] = useState<string>(value);
 
   // keep local state synced with external updates (like sockets)
   useEffect(() => {

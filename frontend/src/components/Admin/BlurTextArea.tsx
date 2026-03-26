@@ -8,7 +8,7 @@ type _TextAreaProps = {
 };
 
 export function BlurTextArea({ value, placeholder, onCommit, className }: _TextAreaProps) {
-  const [editValue, setEditValue] = useState<string|null>(value);
+  const [editValue, setEditValue] = useState<string>(value ?? "");
 
   // keep local state synced with external updates (like sockets)
   useEffect(() => {
@@ -24,7 +24,7 @@ export function BlurTextArea({ value, placeholder, onCommit, className }: _TextA
   return (
     <textarea
       className={className}
-      value={editValue}
+      value={editValue ?? ""}
       placeholder={placeholder}
       onChange={(e) => setEditValue(e.target.value)}
       onBlur={handleBlur}
