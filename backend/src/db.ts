@@ -8,7 +8,7 @@ const connectionString = process.env.DATABASE_URL;
 const pool = new Pool({ connectionString });
 
 // 2. Initialize the Adapter
-const adapter = new PrismaPg(pool);
+const adapter = new PrismaPg(pool as any);
 
 // 3. Pass the Adapter to Prisma Client
 export const prisma = new PrismaClient({ adapter });
