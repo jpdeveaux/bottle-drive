@@ -23,7 +23,6 @@ services:
       - DATABASE_URL=postgresql://${DB_USER}:${DB_PASS}@db:5432/${DB_NAME}?schema=public
     volumes:
       - ./backend:/app
-      - ./shared:/shared # Map it here
       - /app/node_modules # Protects container modules      
     depends_on:
       - db
@@ -34,7 +33,6 @@ services:
       - "3000:5173" # Map Windows port 3000 to Vite's 5173
     volumes:
       - ./frontend:/app
-      - ./shared:/shared # Map it here
       - /app/node_modules
     env_file:
       - ./.env
