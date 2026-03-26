@@ -15,11 +15,4 @@ export default defineConfig({
       "@types": path.resolve(__dirname, "./src/types.ts")
     },
   },
-  server: {
-    watch: {
-      usePolling: true, // Crucial for WSL2/Docker hot-reloading
-    },
-    host: true, // Listen on all addresses
-    port: 5173
-  }
 })
