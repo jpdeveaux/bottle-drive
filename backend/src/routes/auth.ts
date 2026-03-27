@@ -3,6 +3,7 @@ import { prisma } from '../db.js';
 import { authenticateJWT, AuthRequest, verifyGoogleToken, generateLocalToken } from '@auth';
 import { Server } from 'socket.io';
 import jwt from 'jsonwebtoken';
+import { User } from '@types';
 const JWT_SECRET = process.env.JWT_SECRET || 'super-secret-change-me';
 
 export default (io: Server) => {
@@ -34,7 +35,7 @@ export default (io: Server) => {
     else {
       // validate token.
       console.log('validating token '+token);
-      jwt.verify(token, JWT_SECRET, (err: any, decoded: any) => {
+      jwt.verify(token, JWT_SECRET, async (err: any, decoded: any) => {
         if (err) {
           console.log('disconnecting - invalid token');
           socket.disconnect();
@@ -50,6 +51,24 @@ export default (io: Server) => {
             console.log(' -> admin user, joined "admin" room');
           }
 
+          // update the user's "last seen" state
+          const updatedUser = await prisma.user.update({
+            where: { id: decoded.id },
+            data: {
+              lastSeen: new Date()
+            },
+            select: {
+              id: true,
+              name: true,
+              lastLat: true,
+              lastLng: true,
+              lastSeen: true
+            }}
+          );
+
+          console.log('sending updated user location to admin - '+JSON.stringify(updatedUser));
+          io.to('admin').emit('userUpdated', updatedUser);
+
           socket.on('disconnect', () => {
             console.log(' ==> standard socket disconnect.');
           });
@@ -61,7 +80,8 @@ export default (io: Server) => {
   router.get('/me', authenticateJWT, async (req: AuthRequest, res) => {
     try {
       const user = await prisma.user.findUnique({
-        where: { id: req.user?.id }
+        where: { id: req.user?.id },
+        include: { zones: true }
       });
 
       if (!user) return res.status(404).json({ error: "User not found" });
@@ -71,7 +91,7 @@ export default (io: Server) => {
 
       res.json({ 
         token, 
-        user: { id: user.id, email: user.email, role: user.role, name: user.name, isApproved: user.isApproved },
+        user: { id: user.id, role: user.role, name: user.name, isApproved: user.isApproved },
       });
     } catch (error) {
       res.status(500).json({ error: "Internal server error" });
@@ -89,8 +109,9 @@ export default (io: Server) => {
     try {
       // Find or Create the user
       let user = await prisma.user.findUnique({
-        where: { email: payload.email }
-      });
+        where: { email: payload.email },
+        include: { zones: true }
+      }) as User;
 
       if (!user) {
         user = await prisma.user.create({
@@ -106,16 +127,16 @@ export default (io: Server) => {
         // Update the placeholder from the seed script with their real Google ID
         user = await prisma.user.update({
           where: { id: user.id },
-          data: { googleId: payload.sub, name: payload.name }
+          data: { googleId: payload.sub, name: payload.name },
+          include: { zones: true }
         });
       }
      
-      // Generate local JWT for the frontend to use
       const token = generateLocalToken(user);
-
+      
       res.json({ 
         token, 
-        user: { id: user.id, email: user.email, role: user.role, name: user.name, isApproved: user.isApproved } 
+        user: { id: user.id, role: user.role, name: user.name, isApproved: user.isApproved } 
       });
     } catch (error) {
       res.status(500).json({ error: "Authentication failed" });

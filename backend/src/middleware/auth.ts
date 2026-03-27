@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import { OAuth2Client } from 'google-auth-library';
-import { User } from '@shared/types.js';
+import { User } from '@types';
 import jwt from 'jsonwebtoken';
 
-const client = new OAuth2Client(process.env.VITE_GOOGLE_CLIENT_ID);
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 const JWT_SECRET = process.env.JWT_SECRET || 'super-secret-change-me';
 
 export interface IDParams {
@@ -14,7 +14,7 @@ export const verifyGoogleToken = async (idToken: string) => {
   try {
     const ticket = await client.verifyIdToken({
       idToken,
-      audience: process.env.VITE_GOOGLE_CLIENT_ID,
+      audience: process.env.GOOGLE_CLIENT_ID,
     });
     return ticket.getPayload(); // Contains email, name, sub (Google ID)
   } catch (error) {
@@ -25,7 +25,7 @@ export const verifyGoogleToken = async (idToken: string) => {
 
 export const generateLocalToken = (user: User) => {
   return jwt.sign(
-    { id: user.id, email: user.email, role: user.role, isApproved: user.isApproved },
+    { id: user.id, email: user.email, role: user.role, isApproved: user.isApproved, zones: user.zones },
     JWT_SECRET,
     { expiresIn: '1d' } // Volunteers don't want to log in every hour
   );
@@ -44,7 +44,7 @@ export const authenticateJWT = (req: AuthRequest, res: Response, next: NextFunct
 
     jwt.verify(token, JWT_SECRET, (err: any, decoded: any) => {
       if (err) {
-        return res.status(403).json({ error: "Session expired or invalid" });
+        return res.status(401).json({ error: "Session expired or invalid" });
       }
       req.user = decoded;
 

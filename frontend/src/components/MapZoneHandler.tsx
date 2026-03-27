@@ -1,7 +1,7 @@
 import { useMapEvents } from 'react-leaflet';
 import * as L from 'leaflet';
 import { useState } from 'react';
-import { Zone } from "@shared/types";
+import { Zone } from "@types";
 
 interface MapZoneHandlerProps {
   interactionMode: string;

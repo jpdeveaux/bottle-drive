@@ -1,10 +1,10 @@
-import { GoogleLogin } from '@react-oauth/google';
+import { CredentialResponse, GoogleLogin } from '@react-oauth/google';
 import { useAuth } from '@context/UseAuth';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTitle } from '@hooks/useTitle';
 import { useState, useEffect } from 'react';
 import { socket } from "@hooks/useSocket";
-import { User } from '@shared/types';
+import { User } from '@types';
 
 interface NotApprovedType {
   name: string;
@@ -15,7 +15,7 @@ export const Login = () => {
   const { login, clearState, refreshUser } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const [notApproved, setNotApproved] = useState<NotApprovedType>(null);
+  const [notApproved, setNotApproved] = useState<NotApprovedType|null>(null);
   
   const BACKEND = import.meta.env.VITE_API_URL;
   const TITLE = import.meta.env.VITE_TITLE;
@@ -23,7 +23,7 @@ export const Login = () => {
 
   useTitle(`${TITLE} - Login`);
 
-  const handleSuccess = async (response) => {
+  const handleSuccess = async (response: CredentialResponse) => {
     const res = await fetch(`${BACKEND}/api/auth/google`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -67,7 +67,7 @@ export const Login = () => {
     console.log('-> connected ');
 
     socket.on('disconnect', () => {
-      socket.io.opts.query = null;
+      socket.io.opts.query = undefined;
       console.log(` ==> User ${userId} disconnected.`);
     });
 
@@ -170,21 +170,14 @@ export const Login = () => {
             />
           </div>
         </div>
-
-        <div className="mt-8 border-t border-gray-100 pt-6">
-          <div className="text-xs text-center text-gray-400">
-            Authorized personnel only. Access is logged and monitored.
-          </div>
+      
+        <div className="mt-6 text-center">
+          <a href="/" className="text-sm font-medium text-blue-600 hover:text-blue-500 transition-colors">
+            ← Go to Pickup Request Form
+          </a>
         </div>
       </div>
-      
-      <div className="mt-6 text-center">
-        <a href="/" className="text-sm font-medium text-blue-600 hover:text-blue-500 transition-colors">
-          ← Go to Pickup Request Form
-        </a>
-      </div>
     </div>
-
     )}
 </div>
   );

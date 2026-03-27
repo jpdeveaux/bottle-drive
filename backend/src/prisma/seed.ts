@@ -1,4 +1,4 @@
-import { prisma } from '../src/db.js';
+import { prisma } from '../db.js';
 
 async function main() {
   const adminEmail = process.env.INITIAL_ADMIN_EMAIL;

@@ -10,7 +10,6 @@ import authRoutes from '@routes/auth.js';
 import zoneRoutes from '@routes/zones.js';
 import heartbeatRoutes from '@routes/heartbeat.js';
 
-console.log('origin: '+process.env.FRONTEND_URL);
 const corsOptions = {
   origin: process.env.FRONTEND_URL,
   methods: ["GET", "POST", "PATCH", "DELETE"],
@@ -18,6 +17,7 @@ const corsOptions = {
 };
 
 const app = express();
+app.set('trust proxy', 1);
 app.use(cors(corsOptions));
 
 const server = createServer(app);
@@ -31,7 +31,7 @@ app.use('/api/public', publicRoutes(io));
 app.use('/api/auth', authRoutes(io));
 app.use('/api/users', userRoutes(io));
 app.use('/api/zones', zoneRoutes(io));
-app.use('/api/heartbeat', heartbeatRoutes);
+app.use('/api/heartbeat', heartbeatRoutes(io));
 app.use('/api/addresses', addressRoutes(io));
 
 server.listen(3001, '0.0.0.0', () => console.log("Server running on port 3001"));

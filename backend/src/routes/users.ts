@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { prisma } from '../db.js';
 import { authenticateJWT, authApproved, authAdmin, AuthRequest } from '@auth';
-import { Role } from '@shared/types.js';
+import { Role } from '@types';
 import { Server } from 'socket.io';
 
 interface UserParams {
@@ -27,23 +27,23 @@ export default(io: Server) => {
       }
     });
 
-    console.log(users);  
+    console.log('Fetched '+(users?.length || '0')+' users');
     res.json(users);
   });
 
   router.get('/active', async (req, res) => {
-    const fiveMinutesAgo = new Date(Date.now() - 300 * 1000);
+    const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
 
     const activeVolunteers = await prisma.user.findMany({
       where: {
         role: 'volunteer',
         lastSeen: {
-          gte: fiveMinutesAgo
+          gte: thirtyMinutesAgo
         }
       },
       select: {
         id: true,
-        email: true, // or name
+        email: true,
         lastLat: true,
         lastLng: true,
         lastSeen: true,

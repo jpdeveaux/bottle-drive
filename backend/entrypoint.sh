@@ -26,16 +26,12 @@ if [ "$NODE_ENV" = "production" ]; then
   npx prisma migrate deploy
 else
   echo "Mode: DEVELOPMENT"
+
   echo "Action: Running 'prisma db push --accept-data-loss'..."
   # --accept-data-loss allows quick iteration while you are designing the schema
   npx prisma db push --accept-data-loss
   echo "DB Pushed successfully."
 fi
-
-# 3. GENERATE CLIENT
-# This ensures the Prisma Client matches the current OS/Wasm environment
-echo "Action: Generating Prisma Client..."
-npx prisma generate
 
 # 4. SEED DATABASE
 echo "Action: Initializing database..."

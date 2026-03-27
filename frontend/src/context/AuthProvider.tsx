@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useState } from 'react';
 import { AuthContext } from './AuthContext';
 import { authFetch } from '@auth';
-import type { User } from '@shared/types';
+import type { User } from '@types';
 import type { AuthState } from './AuthContext';
 import { socket } from '@hooks/useSocket';
 

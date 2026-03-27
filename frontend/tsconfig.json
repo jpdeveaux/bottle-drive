@@ -1,22 +1,37 @@
 {
   "compilerOptions": {
+    "target": "ESNext",
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "module": "ESNext",
     "jsx": "react-jsx",
-    "module": "es2022",
-    "moduleResolution": "Node", 
-    "types": ["vite/client"],   
-    "sourceMap": true,
+    "moduleResolution": "bundler", 
+    "types": ["vite/client"], 
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,     
+    "skipLibCheck": true,
+
+   /* Linting & Compatibility */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "esModuleInterop": true, 
+    "allowSyntheticDefaultImports": true, 
+
     "baseUrl": ".",
     "paths": {
-        "@shared/*": ["../shared/*"],
         "@context/*": ["src/context/*"],
         "@hooks/*": ["src/hooks/*"],
         "@components/*": ["src/components/*"],
-        "@auth": ["src/authFetch.js"]
+        "@auth": ["src/authFetch.js"],
+        "@types": ["src/types.js"]
     }
   },
   "include": [
     ".",
     "src",
-    "../shared"          /* make sure TS will type‑check the shared code */
-  ]  
+  ],
+  "references": [{ "path": "./tsconfig.node.json" }]
 }
