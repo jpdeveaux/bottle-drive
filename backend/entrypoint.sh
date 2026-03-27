@@ -27,11 +27,6 @@ if [ "$NODE_ENV" = "production" ]; then
 else
   echo "Mode: DEVELOPMENT"
 
-  # 3. GENERATE CLIENT
-  # This ensures the Prisma Client matches the current OS/Wasm environment
-  echo "Action: Generating Prisma Client..."
-  npx prisma generate
-
   echo "Action: Running 'prisma db push --accept-data-loss'..."
   # --accept-data-loss allows quick iteration while you are designing the schema
   npx prisma db push --accept-data-loss

@@ -41,7 +41,7 @@ const userIcon = new L.Icon({
 
 function Map() {
   const [interactionMode, setInteractionMode] = useState('idle'); // 'idle' or 'draw-zone'
-  const [users, setUsers] = useState<User[]>([])
+  const [activeUsers, setActiveUsers] = useState<User[]>([])
   const [showZoneModal, setShowZoneModal] = useState(false);
   const [pendingZone, setPendingZone] = useState<{ ids: string[], bounds: L.LatLngBounds } | null>(null);
   const { authState } = useAuth();
@@ -89,10 +89,12 @@ function Map() {
   useHeartbeat(authState.user);
 
   useEffect(() => {
-    const fetchUsers = async () => {
+    const fetchActiveUsers = async () => {
       try {
-        const res = await authFetch('/users');
-        setUsers(await res.json());
+        const res = await authFetch('/users/active');
+        const users = await res.json();
+        console.log(users);
+        setActiveUsers(users);
       } catch (err) {
         console.error("Failed to load users:", err);
       }
@@ -100,11 +102,11 @@ function Map() {
 
     // get user info only if this is admin.
     if (authState?.user?.role === 'admin') {
-      fetchUsers();
+      fetchActiveUsers();
 
       // update the user that was updated.  If the user wasn't there, add to the map.
       socket.on('userUpdated', (updatedUser: User) => {
-        setUsers(curUsers => {
+        setActiveUsers(curUsers => {
           const exists = curUsers.some(a => a.id === updatedUser.id);
 
           if (exists) {
@@ -114,7 +116,6 @@ function Map() {
           }
 
           return [...curUsers, updatedUser];
-          
         });
       });
     }
@@ -125,13 +126,6 @@ function Map() {
       }
       console.log('useEffect cleanup: socket listener removed'); };
   }, [authState]);
-
-  const isWithinLastTwoMinutes = (lastSeen: Date | null) => {
-    if (!lastSeen) return false;
-    const now = new Date();
-    const diffInSeconds = Math.floor((now.getTime() - lastSeen.getTime()) / 1000);
-    return diffInSeconds < 120; // 120 seconds = 2 minutes
-  };
 
   return (
     <div style={{ position: 'relative' }}>
@@ -218,8 +212,7 @@ function Map() {
           </Marker>
         ))}
 
-        {users
-          .filter(u => isWithinLastTwoMinutes(new Date(u.lastSeen)))
+        {activeUsers
           .map(u => (
             <Marker 
               key={u.id} 

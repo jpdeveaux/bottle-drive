@@ -10,7 +10,6 @@ import authRoutes from '@routes/auth.js';
 import zoneRoutes from '@routes/zones.js';
 import heartbeatRoutes from '@routes/heartbeat.js';
 
-console.log('origin: '+process.env.FRONTEND_URL);
 const corsOptions = {
   origin: process.env.FRONTEND_URL,
   methods: ["GET", "POST", "PATCH", "DELETE"],
@@ -18,6 +17,7 @@ const corsOptions = {
 };
 
 const app = express();
+app.set('trust proxy', 1);
 app.use(cors(corsOptions));
 
 const server = createServer(app);

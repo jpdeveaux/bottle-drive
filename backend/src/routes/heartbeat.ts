@@ -27,7 +27,7 @@ export default(io: Server) => {
           },
         });
 
-        console.log('sending updated user location to admin - '+user);
+        console.log('sending updated user location to admin - '+JSON.stringify(user));
         io.to('admin').emit('userUpdated', user);
       }
       

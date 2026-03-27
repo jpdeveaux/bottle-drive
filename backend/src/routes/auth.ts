@@ -34,7 +34,7 @@ export default (io: Server) => {
     else {
       // validate token.
       console.log('validating token '+token);
-      jwt.verify(token, JWT_SECRET, (err: any, decoded: any) => {
+      jwt.verify(token, JWT_SECRET, async (err: any, decoded: any) => {
         if (err) {
           console.log('disconnecting - invalid token');
           socket.disconnect();
@@ -49,6 +49,24 @@ export default (io: Server) => {
             socket.join('admin');
             console.log(' -> admin user, joined "admin" room');
           }
+
+          // update the user's "last seen" state
+          const updatedUser = await prisma.user.update({
+            where: { id: decoded.id },
+            data: {
+              lastSeen: new Date()
+            },
+            select: {
+              id: true,
+              name: true,
+              lastLat: true,
+              lastLng: true,
+              lastSeen: true
+            }}
+          );
+
+          console.log('sending updated user location to admin - '+JSON.stringify(updatedUser));
+          io.to('admin').emit('userUpdated', updatedUser);
 
           socket.on('disconnect', () => {
             console.log(' ==> standard socket disconnect.');

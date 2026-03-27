@@ -27,7 +27,7 @@ export default(io: Server) => {
       }
     });
 
-    console.log(users);  
+    console.log('Fetched '+(users?.length || '0')+' users');
     res.json(users);
   });
 

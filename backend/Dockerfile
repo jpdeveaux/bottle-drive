@@ -6,19 +6,21 @@ FROM node:22-slim AS base
 RUN apt-get update && apt-get install -y tzdata openssl netcat-openbsd && rm -rf /var/lib/apt/lists/*
 
 ENV TZ=America/Halifax
+ENV NODE_ENV=development
 WORKDIR /app
 
 COPY package*.json ./
+
+ARG DATABASE_URL
 
 # =========================
 # Development target
 # =========================
 FROM base AS dev
 
-ENV NODE_ENV=development
-
 RUN npm install
 COPY . .
+RUN DATABASE_URL=${DATABASE_URL} npx prisma generate
 
 RUN chmod +x /app/entrypoint.sh
 ENTRYPOINT ["/app/entrypoint.sh"]
@@ -29,12 +31,9 @@ CMD ["npx", "tsx", "src/index.ts"]
 # =========================
 FROM base AS builder
 
-ENV NODE_ENV=development
 RUN npm ci
-COPY prisma ./prisma
-RUN npx prisma generate
-
 COPY . .
+RUN DATABASE_URL=${DATABASE_URL} npx prisma generate
 RUN npm run build
 
 # =========================
@@ -46,15 +45,12 @@ ENV NODE_ENV=production
 
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
 COPY entrypoint.sh ./entrypoint.sh
 
 # IMPORTANT: Re-generate the client in the production node_modules
-# We don't need a real URL here, just the variable name defined in schema.prisma
 RUN npm ci --omit=dev
-RUN npx prisma generate
 
-# the prisma config file breaks npx prisma generate, but it's needed by "npx prisma migrate deploy" in entrypoint.sh
-COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
 RUN chmod +x ./entrypoint.sh
 ENTRYPOINT ["./entrypoint.sh"]
 CMD ["node", "dist/index.js"]

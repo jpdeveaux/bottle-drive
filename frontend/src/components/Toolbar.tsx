@@ -28,7 +28,7 @@ export const Toolbar = ({ mode, setMode }: { mode: string, setMode: (m: string) 
           onClick={goToDashboard}
           className='flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all text-gray-600 hover:bg-gray-300'>
           <Square size={18} />
-          <span>Dashboard</span>
+          <span>Admin</span>
         </button>
       )}
 
