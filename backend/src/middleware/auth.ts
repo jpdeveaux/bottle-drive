@@ -25,7 +25,7 @@ export const verifyGoogleToken = async (idToken: string) => {
 
 export const generateLocalToken = (user: User) => {
   return jwt.sign(
-    { id: user.id, email: user.email, role: user.role, isApproved: user.isApproved },
+    { id: user.id, email: user.email, role: user.role, isApproved: user.isApproved, zones: user.zones },
     JWT_SECRET,
     { expiresIn: '1d' } // Volunteers don't want to log in every hour
   );
