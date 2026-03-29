@@ -6,12 +6,16 @@ import type { Address } from "@types";
 
 export function useAddresses() {
   const [addresses, setAddresses] = useState<Address[]>([]);
+  const [addressesInitialized, setAddressesInitialized] = useState(false);
   const { authState } = useAuth();
 
   useEffect(() => {
     const fetchAddresses = async () => {
       const res = await authFetch("/addresses");
-      if (res.ok) setAddresses(await res.json());
+      if (res.ok) {
+        setAddresses(await res.json());
+        setAddressesInitialized(true);
+      }
     };
 
     fetchAddresses();
@@ -79,5 +83,5 @@ export function useAddresses() {
     }
   };
 
-  return { addresses, handleAddressState };
+  return { addresses, addressesInitialized, handleAddressState };
 }
