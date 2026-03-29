@@ -40,3 +40,9 @@ export interface Address {
   lng: number;
   zone?: Zone;
 }
+
+export interface MapBounds {
+  bounds?: L.LatLngTuple[];
+  center?: L.LatLngTuple;
+  zoom?: number;
+}
