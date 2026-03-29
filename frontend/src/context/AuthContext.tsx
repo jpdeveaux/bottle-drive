@@ -4,7 +4,6 @@ import type { User } from '@types';
 export interface AuthState {
   user: User | null;
   token: string | null;
-  loading: boolean;
 }
 
 interface AuthContextType {

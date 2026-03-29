@@ -17,7 +17,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return {
           token: savedToken,
           user: JSON.parse(savedUser),
-          loading: false, // We already have the data, no need to "load"
         };
       } catch (e) {
         console.error("Failed to parse saved user", e);
@@ -28,21 +27,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return {
       user: null,
       token: null,
-      loading: false, // Set to false because we've finished the check
     };
   });
 
   const clearState = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    setAuthState({ token: null, user: null, loading: false });
+    setAuthState({ token: null, user: null });
     socket.disconnect();
   };
 
   const login = (newToken: string, newUser: User) => {
     localStorage.setItem('token', newToken);
     localStorage.setItem('user', JSON.stringify(newUser));
-    setAuthState({ token: newToken, user: newUser, loading: false });    
+    setAuthState({ token: newToken, user: newUser });    
   };
 
   const logout = () => {
