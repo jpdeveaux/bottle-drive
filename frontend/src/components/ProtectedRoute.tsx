@@ -11,10 +11,6 @@ interface ProtectedProps {
 export const ProtectedRoute = ({ children, adminOnly=false } : ProtectedProps ) => {
   const { authState } = useAuth();
   
-  if (authState.loading) {
-    return <div>Loading...</div>;
-  }
-
   // Capture current path (e.g., /admin or /map)
   const currentPath = window.location.pathname;
   const target = `/login?redirectTo=${encodeURIComponent(currentPath)}`;
