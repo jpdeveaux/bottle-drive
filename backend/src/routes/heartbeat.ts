@@ -14,7 +14,7 @@ export default(io: Server) => {
       console.log(`Received heartbeat from user ${userId} at location (${lat}, ${lng})`);
       const curLocation = await prisma.user.findUnique({ 
         where: { id: userId }, 
-        select: {lastLat: true, lastLng: true}
+        select: { id: true, name: true, lastLat: true, lastLng: true}
       });
 
       if(curLocation?.lastLat !== lat || curLocation?.lastLng !== lng) {
@@ -31,7 +31,7 @@ export default(io: Server) => {
         io.to('admin').emit('userUpdated', user);
       }
       
-      res.sendStatus(200);
+      res.status(200).json(curLocation);
     } catch (error) {
       console.error("Heartbeat failed:", error);
       res.status(500).json({ error: "Could not update location" });

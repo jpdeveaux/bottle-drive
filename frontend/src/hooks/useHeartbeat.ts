@@ -3,17 +3,22 @@ import { useEffect } from 'react';
 import { User } from '@types';
 import { authFetch } from '@auth';
 
-export const useHeartbeat = (user: User | null) => {
+export const useHeartbeat = (user: User | null, setActiveUsers: React.Dispatch<React.SetStateAction<User[]>>) => {
   useEffect(() => {
     const sendLocation = () => {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           const { latitude, longitude } = position.coords;
           
-          await authFetch('/heartbeat', {
+          const me = await authFetch('/heartbeat', {
             method: 'POST',
             body: JSON.stringify({ lat: latitude, lng: longitude }),
           });
+
+          if(user?.role !== 'admin') {
+            const u = await me.json();
+            setActiveUsers([u]);
+          }
         },
         (err) => console.error("Location blocked", err),
         { enableHighAccuracy: true }
@@ -25,5 +30,5 @@ export const useHeartbeat = (user: User | null) => {
     const interval = setInterval(sendLocation, 10000);
 
     return () => clearInterval(interval);
-  }, [user]);
+  }, [user, setActiveUsers]);
 };
