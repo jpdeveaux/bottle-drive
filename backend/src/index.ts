@@ -34,4 +34,5 @@ app.use('/api/zones', zoneRoutes(io));
 app.use('/api/heartbeat', heartbeatRoutes(io));
 app.use('/api/addresses', addressRoutes(io));
 
-server.listen(3001, '0.0.0.0', () => console.log("Server running on port 3001"));
+const BACKEND_PORT: number = parseInt(process.env.BACKEND_PORT || "3001");
+server.listen(BACKEND_PORT, '0.0.0.0', () => console.log(`Server running on port ${BACKEND_PORT}`));
