@@ -11,6 +11,7 @@ export const PublicRequest = () => {
   const TITLE = import.meta.env.VITE_TITLE;
   const EVENT_DATE = new Date(import.meta.env.VITE_DATE_TIME);
   const EVENT_DATE_STR: string = format(EVENT_DATE, 'cccc, MMMM do, yyyy @ haaa');
+  const EVENT_DATE_SHORT: string = format(EVENT_DATE, 'MMM do, yyyy');
   const EVENT_IN_PAST: boolean = compareAsc(EVENT_DATE, new Date()) == -1;
 
   useTitle(`${TITLE}`);
@@ -60,16 +61,9 @@ export const PublicRequest = () => {
         <div className="bg-green-100 text-green-800 p-4 rounded-md mb-4 font-medium">
           ✅ Request submitted successfully!
         </div>
-        <button 
-          onClick={() => {
-            setStreet(''); 
-            setNotes(''); 
-            setStatus('idle');
-          }} 
-          className="text-blue-600 hover:underline font-medium"
-        >
-          Submit another request
-        </button>
+        <div className="text-gray-700">
+          Please have your refundables ready for pickup on {EVENT_DATE_SHORT}!
+        </div>
       </div>
     ) : (
       <form onSubmit={handleSubmit} className="space-y-5">
