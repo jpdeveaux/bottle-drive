@@ -31,7 +31,7 @@ export const AddressManager = () => {
   };
 
   const addAddress = async () => {
-    const street = prompt("Enter street name:");
+    const street = prompt("Enter complete address (street, city, province):");
     if (!street) return;
     try {
       await authFetch('/addresses', {
