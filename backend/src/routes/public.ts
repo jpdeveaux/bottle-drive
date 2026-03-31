@@ -9,21 +9,22 @@ export default (io: Server) => {
   // Public: Submit new address (No Auth Required)
   router.post('/submit', async (req, res) => {
     const { street, notes } = req.body;
-    const geo = await geocodeAddress(street);
+    let geo = await geocodeAddress(street);
 
     if (!geo || !geo.lat || !geo.lng) {
-      return res.status(400).json({ error: "Could not find that location. Please be more specific." });
+      console.log('Geocoding failed for address: '+street);
+      geo = null;
     }
 
     try {
       const newAddress = await prisma.address.create({
         data: {
           street: street,
-          lat: geo.lat,
-          lng: geo.lng,
+          lat: geo?.lat || 0,
+          lng: geo?.lng || 0,
           notes: notes || "",
           state: "unvisited",
-          zoneId: await checkForZone(geo)
+          zoneId: geo && await checkForZone(geo)
         },
         include: ZONE_NAME_AND_USERS
       });
