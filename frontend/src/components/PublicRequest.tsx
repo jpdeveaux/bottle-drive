@@ -32,7 +32,7 @@ export const PublicRequest = () => {
 
     try {
       const payload: RequestPayload = { street, notes };
-      const res = await fetch(`${BACKEND}/api/public/submit`, {
+      const res = await fetch(`${BACKEND}/api/addresses`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
