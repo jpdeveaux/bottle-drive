@@ -30,10 +30,32 @@ export const AddressManager = () => {
     }
   };
 
+  const addAddress = async () => {
+    const street = prompt("Enter street name:");
+    if (!street) return;
+    try {
+      await authFetch('/addresses', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ street }),
+      });
+    } catch (err) {
+      console.error("Failed to add address: ", err);
+    }
+  }
+
   return (  
   <div className="bg-white shadow-md rounded-lg border border-gray-200 overflow-hidden">
     <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
-      <h2 className="text-lg font-semibold text-gray-800">Address Database Review</h2>
+      <div className="flex items-center space-x-10">
+        <h2 className="text-lg font-semibold text-gray-800">Addresses</h2>
+        <button
+          className="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-1 px-2 rounded"
+          onClick={addAddress}
+        >
+          + Add New Address
+        </button>
+      </div>
       <span className="text-xs font-medium text-gray-500 bg-gray-200 px-2 py-1 rounded-full">
         {addresses.length} Entries
       </span>
@@ -44,7 +66,7 @@ export const AddressManager = () => {
           <tr>
             <th className="px-4 py-3">Zone</th>
             <th className="px-4 py-3">Street / Submission</th>
-            <th className="px-4 py-3">Geocode Status</th>
+            <th className="px-4 py-3">Coordinates</th>
             <th className="px-4 py-3">Status</th>
             <th className="px-4 py-3">Actions</th>
           </tr>
