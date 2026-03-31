@@ -24,7 +24,7 @@ RUN DATABASE_URL=${DATABASE_URL} npx prisma generate
 
 RUN chmod +x /app/entrypoint.sh
 ENTRYPOINT ["/app/entrypoint.sh"]
-CMD ["npx", "tsx", "src/index.ts"]
+CMD ["node", "--import", "tsx", "--watch", "--inspect=0.0.0.0:9229", "src/index.ts"]
 
 # =========================
 # Builder target

@@ -24,6 +24,7 @@ services:
         - DATABASE_URL=postgresql://${DB_USER}:${DB_PASS}@db:${DB_PORT}/${DB_NAME}?schema=public
     ports:
       - "${BACKEND_PORT}:${BACKEND_PORT}"
+      - "9229:9229"   # The Debugger port
     env_file:
       - ./.env
     environment:
