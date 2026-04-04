@@ -43,16 +43,55 @@ export const authenticateJWT = (req: AuthRequest, res: Response, next: NextFunct
     const token = authHeader.split(' ')[1];
 
     jwt.verify(token, JWT_SECRET, (err: any, decoded: any) => {
-      if (err) {
-        return res.status(401).json({ error: "Session expired or invalid" });
+      if (!err) {
+        req.user = decoded;
+      } 
+    });
+  }
+
+  next();
+};
+
+export const verifyCaptcha = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  // if there is no secret key set, or the user is already approved, skip captcha verification
+  const SECRET_KEY = process.env.RECAPTCHA_SECRET_KEY;
+  if (!SECRET_KEY || req.user?.isApproved) {
+    next();
+  }
+  else {
+    const { recaptchaToken } = req.body;
+    if (!recaptchaToken) {      
+      return res.status(400).json({ error: "reCAPTCHA token is required" });
+    }
+
+    const verificationUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${SECRET_KEY}&response=${recaptchaToken}`;
+
+    try {
+      const response = await fetch(verificationUrl, {
+        method: 'POST'
+      });
+
+      const result = await response.json();
+      const { success, score } = result;
+      const isHuman = success && score >= 0.5;
+
+      if (!isHuman) {
+        return res.status(403).json({ error: "Bot detection triggered." });
       }
-      req.user = decoded;
 
       next();
-    });
-  } else {
-    res.status(401).json({ error: "Authorization header missing" });
+    } catch (error) {
+      console.error("Captcha verification failed:", error);
+      return res.status(500).json({ error: "Captcha verification failed" });
+    }
   }
+};
+
+export const authValidSession = (req: AuthRequest, res: Response, next: NextFunction) => {
+  if (!req.user) {
+    return res.status(401).json({ error: 'Session expired or invalid' });
+  }
+  next();
 };
 
 export const authApproved = (req: AuthRequest, res: Response, next: NextFunction) => {

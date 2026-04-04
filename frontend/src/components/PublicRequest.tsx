@@ -1,6 +1,7 @@
 import { useState, SubmitEvent } from 'react';
 import { useTitle } from '@hooks/useTitle';
 import { format, compareAsc } from 'date-fns';
+import { CaptchaForm } from './Captcha';
 
 export const PublicRequest = () => {
   const [street, setStreet] = useState('');
@@ -19,9 +20,10 @@ export const PublicRequest = () => {
   interface RequestPayload {
     street: string;
     notes: string;
+    recaptchaToken: string | undefined;
   }
 
-  const handleSubmit = async (e: SubmitEvent<HTMLFormElement>): Promise<void> => {
+  const handleSubmit = async (e: SubmitEvent<HTMLFormElement>, recaptchaToken: string | undefined): Promise<void> => {
     e.preventDefault();
 
     if (EVENT_IN_PAST && !window.confirm("The bottle drive has already started/happened.  Submit this address?")) {
@@ -31,7 +33,7 @@ export const PublicRequest = () => {
     setStatus('loading');
 
     try {
-      const payload: RequestPayload = { street, notes };
+      const payload: RequestPayload = { street, notes, recaptchaToken };
       const res = await fetch(`${BACKEND}/api/addresses`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -66,7 +68,7 @@ export const PublicRequest = () => {
         </div>
       </div>
     ) : (
-      <form onSubmit={handleSubmit} className="space-y-5">
+      <CaptchaForm formSubmit={handleSubmit} setStatus={setStatus} className="space-y-5">
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-1">
             Street Address
@@ -118,7 +120,7 @@ export const PublicRequest = () => {
             ⚠️ Something went wrong. Please try again.
           </p>
         )}
-      </form>
+      </CaptchaForm>
     )}
   </div>
 </div>
