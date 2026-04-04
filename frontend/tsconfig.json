@@ -20,13 +20,12 @@
     "esModuleInterop": true, 
     "allowSyntheticDefaultImports": true, 
 
-    "baseUrl": ".",
     "paths": {
-        "@context/*": ["src/context/*"],
-        "@hooks/*": ["src/hooks/*"],
-        "@components/*": ["src/components/*"],
-        "@auth": ["src/authFetch.js"],
-        "@types": ["src/types.js"]
+        "@context/*": ["./src/context/*"],
+        "@hooks/*": ["./src/hooks/*"],
+        "@components/*": ["./src/components/*"],
+        "@auth": ["./src/authFetch.js"],
+        "@types": ["./src/types.js"]
     }
   },
   "include": [
