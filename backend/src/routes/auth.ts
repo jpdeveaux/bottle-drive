@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { prisma } from '../db.js';
-import { authenticateJWT, AuthRequest, verifyGoogleToken, generateLocalToken } from '@auth';
+import { authenticateJWT, authValidSession, AuthRequest, verifyGoogleToken, generateLocalToken } from '@auth';
 import { Server } from 'socket.io';
 import jwt from 'jsonwebtoken';
 import { User } from '@types';
@@ -77,7 +77,7 @@ export default (io: Server) => {
     }
   });
 
-  router.get('/me', authenticateJWT, async (req: AuthRequest, res) => {
+  router.get('/me', authenticateJWT, authValidSession, async (req: AuthRequest, res) => {
     try {
       const user = await prisma.user.findUnique({
         where: { id: req.user?.id },
