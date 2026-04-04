@@ -66,8 +66,9 @@ model Address {
   updatedById String?
   updater   User?    @relation(fields: [updatedById], references: [id])
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now()) @updatedAt
+  ipAddress String?  @db.Inet
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 }
 
 enum Role {
