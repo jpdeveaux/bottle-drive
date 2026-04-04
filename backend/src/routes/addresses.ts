@@ -1,16 +1,22 @@
 import { Router } from 'express';
 import { prisma } from '../db.js';
-import { authenticateJWT, authApproved, authAdmin, AuthRequest } from '@auth';
+import { authenticateJWT, authApproved, authAdmin, AuthRequest, verifyCaptcha } from '@auth';
 import { geocodeAddress, checkForZone, ZONE_NAME_AND_USERS } from '../geocoder.js';
 import type { IDParams } from '@auth';
 import type { User } from '@types';
 import { Server } from 'socket.io';
 
+const maskIp = (ip: string) => ip.replace(/\d+$/, '0'); // 192.168.1.123 -> 192.168.1.0
+
 export default (io: Server) => {
   const router = Router();
 
-  router.post('/', async (req, res) => {
+  router.use(authenticateJWT);
+
+  router.post('/', verifyCaptcha, async (req, res) => {
     const { street, notes } = req.body;
+    const clientIp = req.ip || req.socket.remoteAddress || '';
+    
     let geo = await geocodeAddress(street);
 
     if (!geo || !geo.lat || !geo.lng) {
@@ -18,7 +24,7 @@ export default (io: Server) => {
       geo = null;
     }
 
-    try {
+    try {     
       const newAddress = await prisma.address.create({
         data: {
           street: street,
@@ -26,7 +32,8 @@ export default (io: Server) => {
           lng: geo?.lng || 0,
           notes: notes || "",
           state: "unvisited",
-          zoneId: geo && await checkForZone(geo)
+          zoneId: geo && await checkForZone(geo),
+          ipAddress: maskIp(clientIp.toString())
         },
         include: ZONE_NAME_AND_USERS
       });
@@ -41,8 +48,8 @@ export default (io: Server) => {
     }
   });
 
- // all calls from here on use authenticateJWT and authApproved.
-  router.use(authenticateJWT, authApproved);
+ // all calls from here on require authApproved.
+  router.use(authApproved);
 
   // return all addresses
   router.get('/', async (req: AuthRequest, res) => {
