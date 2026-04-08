@@ -1,6 +1,6 @@
-# Volunteer & Organizer Portal for Community Bottle Drives
+# Portal for Community Bottle Drives
 
-A full-stack web application for coordinating residential bottle drives. It provides organizers with tools to define collection zones and gives volunteers a real-time map to track pickup progress.
+A full-stack web application for coordinating residential bottle drives. It provides organizers with tools to define collection zones and gives volunteers a real-time map to track pickup progress.  This app would also be appropriate for any other community project that involves organizing volunteers to visit specific sites to achieve a goal.
 
 The goal is to eliminate overlap, improve coverage, and make progress visible across the team.
 
@@ -13,16 +13,6 @@ This application supports community bottle drives by organizing volunteers and m
 - **Organizers** can define geographic zones and manage access
 - **Volunteers** can claim work and track progress live on a shared map
 - **Everyone** sees real-time updates as pickups are completed
-
----
-
-## Screenshots
-
-*(forthcoming)*
-
-- Zone drawing interface (admin)
-- Volunteer map with live updates
-- Approval / waiting room view
 
 ---
 
@@ -39,13 +29,13 @@ This application supports community bottle drives by organizing volunteers and m
 - Socket.io (real-time updates)
 
 **Database**  
-- PostgreSQL  
-- Prisma ORM  
+- Schema maintained using Prisma ORM, with PostgreSQL backend
 
 **Infrastructure & Auth**  
 - Docker / Docker Compose  
 - Google OAuth 2.0  
-- JWT-based authorization  
+- JWT-based authorization
+- reCAPTCHA v3
 
 ---
 
@@ -62,9 +52,9 @@ This application supports community bottle drives by organizing volunteers and m
 - **Role-Based Access**: Protected admin routes and actions  
 
 ### Security & Authentication
-- **Google OAuth** for sign-in  
-- **JWT Authorization** for API security  
-- **Approval Layer**: Authentication + database-level authorization  
+- **Google OAuth** for sign-in, user tracking
+- **JWT Authorization** for API security
+- **reCAPTCHA v3** to deter bots from spamming the public address input form (logged-in admins bypass reCAPTCHA verification)
 
 ---
 
@@ -72,7 +62,7 @@ This application supports community bottle drives by organizing volunteers and m
 
 ### Prerequisites
 - Docker & Docker Compose
-- (Optional) Node.js if running outside containers
+- (Optional) Node.js and either Apache2 or nginx if running outside containers
 
 ---
 
@@ -106,27 +96,41 @@ To run locally, you must create your own Google Cloud project and OAuth client:
 
 ```
 GOOGLE_CLIENT_ID=your-client-id
-VITE_GOOGLE_CLIENT_ID=your-client-id
 ```
 
 The frontend obtains a Google ID token and sends it to the backend for verification and JWT issuance.
 
 No redirect URIs are required for this flow.
 
+### Configuring reCAPTCHA (Optional) ###
+
+1. Assuming you have already created a project in GCS, go to https://console.cloud.google.com/security/recaptcha
+2. Create keys for your project
+3. Store the keys in `.env`:
+
+```
+RECAPTCHA_SECRET_KEY=your_Google_recaptcha_secret_key
+VITE_RECAPTCHA_SITE_KEY=your_Google_recaptcha_site_key
+```
+
 ---
 
 ### Run (Development)
 
-```bash
-docker compose -f docker-compose.dev.yml up --build
+The easiest way to launch the service is to use ```make``` to build from the Makefile.
+
+From the project root directory:
+```
+make dev-build
 ```
 
 ---
 
 ### Run (Production)
 
-```bash
-docker compose up --build
+From the project root directory:
+```
+make prod
 ```
 
 ---
@@ -152,9 +156,11 @@ This project is actively used for community events and is under ongoing developm
 ---
 ## Future Improvements
 
-- Mobile UX improvements
 - Route optimization / smart assignments
-- Push notifications for volunteers
+- Reports
+- Mobile UX improvements (buttons for updating state; responsive admin interface)
+- Adding new address states - assigned, en-route, etc, as deemed warranted by users
+- Integrated communication (linked to WhatsApp/Messenger, or a self-hosted solution)
 - Offline-first support
 
 ---
