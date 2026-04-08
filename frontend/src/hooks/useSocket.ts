@@ -1,7 +1,7 @@
 // socket.ts
 import { useEffect } from "react";
 import { io, Socket } from "socket.io-client";
-import { useAuth } from '@context/UseAuth';
+import { useAuth } from '@hooks/useAuth';
 
 export const socket: Socket = io(import.meta.env.VITE_API_URL, {
   autoConnect: false

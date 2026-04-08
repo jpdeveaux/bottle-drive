@@ -4,7 +4,7 @@ import { MapContainer, TileLayer, Marker, Popup, Rectangle, Tooltip } from 'reac
 import { User, MapBounds } from '@types';
 import { socket, useSocket } from "@hooks/useSocket";
 import { authFetch } from '@auth';
-import { useAuth } from '@context/UseAuth';
+import { useAuth } from '@hooks/useAuth';
 import 'leaflet/dist/leaflet.css';
 
 import { MapZoneHandler } from './MapZoneHandler';

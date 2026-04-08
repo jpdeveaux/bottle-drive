@@ -1,5 +1,5 @@
 import { AccessDenied } from './AccessDenied';
-import { useAuth } from '@context/UseAuth';
+import { useAuth } from '@hooks/useAuth';
 import { Navigate } from 'react-router-dom';
 
 interface ProtectedProps {

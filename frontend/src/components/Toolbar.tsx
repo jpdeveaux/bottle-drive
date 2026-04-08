@@ -1,6 +1,6 @@
 import { MousePointer2, Square, LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@context/UseAuth';
+import { useAuth } from '@hooks/useAuth';
 import { Role } from '@types';
 
 export const Toolbar = ({ mode, setMode }: { mode: string, setMode: (m: string) => void }) => {

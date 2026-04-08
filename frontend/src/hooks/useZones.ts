@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { authFetch } from "@auth";
-import { useAuth } from "@context/UseAuth";
+import { useAuth } from "@hooks/useAuth";
 import { socket } from "@hooks/useSocket";
 import type { Zone } from "@types";
 

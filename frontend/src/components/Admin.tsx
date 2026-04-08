@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTitle } from '@hooks/useTitle';
-import { useAuth } from '@context/UseAuth';
+import { useAuth } from '@hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { useSocket } from "@hooks/useSocket";
 import { format } from 'date-fns';
