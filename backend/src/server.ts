@@ -19,7 +19,7 @@ export function create(app: Application): { server: ReturnType<typeof createServ
     cors: corsOptions
   });
 
-  // connect this user to their own "room".
+  // handle incoming socket connections (used to handle live map updates, including new addresses and state changes)
   io.on('connection', (socket) => {
     console.log('==> Incoming connection');
     const userId = socket.handshake.query.userId;
